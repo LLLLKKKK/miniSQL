@@ -9,7 +9,7 @@ Logger* Logger::getLogger(const string& name)
 	
 	if (it == loggers.end())
 	{
-		logger = new Logger();
+		logger = new Logger(name);
 		loggers[name] = logger;
 	}
 	else
@@ -18,6 +18,11 @@ Logger* Logger::getLogger(const string& name)
 	}
 	
 	return logger;
+}
+
+Logger::Logger(const string& name)
+{
+	this->name = name;	
 }
 
 Logger::~Logger()
@@ -31,6 +36,8 @@ Logger::~Logger()
 
 void Logger::log(LogLevel level, const char* format, ... )
 {
+	printf("%s ", name.c_str());
+
 	switch (level)
 	{
 		case ERROR:
@@ -55,7 +62,7 @@ void Logger::log(LogLevel level, const char* format, ... )
 
 void Logger::error(const char* format, ... )
 {
-	printf("ERROR: ");
+	printf("%s ERROR:", name.c_str());
 
 	va_list args;
 	va_start(args, format);

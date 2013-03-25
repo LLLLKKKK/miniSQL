@@ -12,8 +12,9 @@ class Logger
 
 private:
 	static map<string, Logger*> loggers;
+	string name;
 
-	Logger();
+	Logger(const string&);
 	~Logger();
 	
 public:

@@ -1,6 +1,7 @@
 #include <cctype>
 #include "logger.hpp"
 #include "scanner.hpp"
+#include "nfa.hpp"
 
 SQLScanner::SQLScanner(const char* filename)
 {
@@ -30,7 +31,11 @@ void SQLScanner::scan()
 	}
 	else if (isQuoteNow())
 	{
-		scanValue();
+		scanChar();
+	}
+	else if (isNegativeOrDigitsNow())
+	{
+		scanNumber();
 	}
 	else if (isOperatorNow())
 	{
@@ -40,6 +45,10 @@ void SQLScanner::scan()
 	{
 		token = NULLTOKEN;
 	}
+	else if (isTerminator())
+	{
+		token = TERMINATOR;
+	}
 	else
 	{
 		logger->error("unknown token at line %d char %d", 
@@ -48,12 +57,29 @@ void SQLScanner::scan()
 	}
 }
 
-void SQLScanner::next()
+void SQLScanner::nextToken()
 {
 	scan();
 }
 
-void SQLScanner::scanValue()
+void SQLScanner::scanNumber()
+{
+	tokenBuffer.push_back(nowChar);
+	next();
+	appendSubsequentDigits();
+	if (nowChar == '.')
+	{
+		tokenBuffer.push_back(nowChar);
+		appendSubsequentDigits();
+		token = FLOAT;
+	}
+	else
+	{
+		token = INTEGER;
+	}
+}
+
+void SQLScanner::scanChar()
 {
 	next();
 	while(!isQuoteNow())
@@ -62,15 +88,16 @@ void SQLScanner::scanValue()
 		next();
 	}
 	next();
+	token = CHAR;
 }
 
 void SQLScanner::scanIdentifier()
 {
-	while(isAlphaNow())
+	if (nfa.enter(nowChar))
 	{
-		tokenBuffer.push_back(nowChar);	
-		next();
+			
 	}
+	appendSubsequentAlpha();
 }
 
 void SQLScanner::scanOperator()
@@ -127,9 +154,31 @@ void SQLScanner::scanOperator()
 	}
 }
 
+void SQLScanner::appendSubsequentAlpha()
+{
+	while (isalpha(nowChar))
+	{	
+		tokenBuffer.push_back(nowChar);
+		next();
+	}
+}
+
+void SQLScanner::appendSubsequentDigits()
+{
+	while (isdigit(nowChar))
+	{
+		tokenBuffer.push_back(nowChar);
+		next();
+	}
+}
 bool SQLScanner::isSpaceNow() const
 {
 	return isalpha(nowChar);
+}
+
+bool SQLScanner::isTerminator() const
+{
+	return nowChar == ';';
 }
 
 bool SQLScanner::isAlphaNow() const
@@ -145,6 +194,11 @@ bool SQLScanner::isQuoteNow() const
 bool SQLScanner::isOperatorNow() const
 {
 	return nowChar == '=' || nowChar == '<' || nowChar == '>';
+}
+
+bool SQLScanner::isNegativeOrDigitsNow() const
+{
+	return isdigit(nowChar) || nowChar == '-';
 }
 
 bool SQLScanner::isEndOfInputNow() const

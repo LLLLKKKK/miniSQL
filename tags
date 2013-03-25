@@ -1,0 +1,219 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BEGIN	keywords.hpp	/^	BEGIN,$/;"	e	enum:Token
+BOOST_AUTO_TEST_CASE	test/NFA_test.cpp	/^BOOST_AUTO_TEST_CASE( refuse1 ) {$/;"	f	signature:( refuse1 )
+BOOST_AUTO_TEST_CASE	test/NFA_test.cpp	/^BOOST_AUTO_TEST_CASE( refuse2 ) {$/;"	f	signature:( refuse2 )
+BOOST_AUTO_TEST_CASE	test/NFA_test.cpp	/^BOOST_AUTO_TEST_CASE( refuse3 ) {$/;"	f	signature:( refuse3 )
+BOOST_TEST_MAIN	test/NFA_test.cpp	3;"	d	file:
+CC	test/makefile	/^CC=clang++$/;"	m
+CFLAGS	test/makefile	/^CFLAGS=$/;"	m
+CHAR	keywords.hpp	/^	CHAR,$/;"	e	enum:Token
+CREATE	keywords.hpp	/^	CREATE,$/;"	e	enum:Token
+DEBUG	logger.hpp	/^		DEBUG,$/;"	e	enum:Logger::LogLevel
+DELETE	keywords.hpp	/^	DELETE,$/;"	e	enum:Token
+END	keywords.hpp	/^	END, $/;"	e	enum:Token
+EQUAL	keywords.hpp	/^	EQUAL,$/;"	e	enum:Token
+ERROR	keywords.hpp	/^	ERROR,$/;"	e	enum:Token
+ERROR	logger.hpp	/^		ERROR,$/;"	e	enum:Logger::LogLevel
+FLOAT	keywords.hpp	/^	FLOAT,$/;"	e	enum:Token
+GREATER	keywords.hpp	/^	GREATER,$/;"	e	enum:Token
+GREATER_EQUAL	keywords.hpp	/^	GREATER_EQUAL,$/;"	e	enum:Token
+GetCharNum	scanner.cpp	/^int InputHandler::GetCharNum() const$/;"	f	class:InputHandler	signature:() const
+GetCharNum	scanner.hpp	/^	int GetCharNum() const;$/;"	p	class:InputHandler	access:public	signature:() const
+GetLineNum	scanner.cpp	/^int InputHandler::GetLineNum() const $/;"	f	class:InputHandler	signature:() const
+GetLineNum	scanner.hpp	/^	int GetLineNum() const;$/;"	p	class:InputHandler	access:public	signature:() const
+INDEX	keywords.hpp	/^	INDEX,$/;"	e	enum:Token
+INFO	logger.hpp	/^		INFO$/;"	e	enum:Logger::LogLevel
+INSERT	keywords.hpp	/^	INSERT,$/;"	e	enum:Token
+INTEGER	keywords.hpp	/^	INTEGER,$/;"	e	enum:Token
+InputHandler	scanner.cpp	/^InputHandler::InputHandler(const char* filename)$/;"	f	class:InputHandler	signature:(const char* filename)
+InputHandler	scanner.hpp	/^	InputHandler(const char* filename);$/;"	p	class:InputHandler	access:public	signature:(const char* filename)
+InputHandler	scanner.hpp	/^class InputHandler $/;"	c
+InputHandler::GetCharNum	scanner.cpp	/^int InputHandler::GetCharNum() const$/;"	f	class:InputHandler	signature:() const
+InputHandler::GetCharNum	scanner.hpp	/^	int GetCharNum() const;$/;"	p	class:InputHandler	access:public	signature:() const
+InputHandler::GetLineNum	scanner.cpp	/^int InputHandler::GetLineNum() const $/;"	f	class:InputHandler	signature:() const
+InputHandler::GetLineNum	scanner.hpp	/^	int GetLineNum() const;$/;"	p	class:InputHandler	access:public	signature:() const
+InputHandler::InputHandler	scanner.cpp	/^InputHandler::InputHandler(const char* filename)$/;"	f	class:InputHandler	signature:(const char* filename)
+InputHandler::InputHandler	scanner.hpp	/^	InputHandler(const char* filename);$/;"	p	class:InputHandler	access:public	signature:(const char* filename)
+InputHandler::charNum	scanner.hpp	/^	int charNum;$/;"	m	class:InputHandler	access:private
+InputHandler::inputFile	scanner.hpp	/^	ifstream inputFile;$/;"	m	class:InputHandler	access:private
+InputHandler::lineBuffer	scanner.hpp	/^	string lineBuffer;$/;"	m	class:InputHandler	access:private
+InputHandler::lineNum	scanner.hpp	/^	int lineNum;$/;"	m	class:InputHandler	access:private
+InputHandler::next	scanner.cpp	/^char InputHandler::next()$/;"	f	class:InputHandler	signature:()
+InputHandler::next	scanner.hpp	/^	char next();$/;"	p	class:InputHandler	access:public	signature:()
+KEY	keywords.hpp	/^	KEY,$/;"	e	enum:Token
+LESS	keywords.hpp	/^	LESS,$/;"	e	enum:Token
+LESS_EQUAL	keywords.hpp	/^	LESS_EQUAL,$/;"	e	enum:Token
+LOGGER_HPP	logger.hpp	3;"	d
+LogLevel	logger.hpp	/^	enum LogLevel$/;"	g	class:Logger	access:public
+Logger	logger.cpp	/^Logger::Logger(const string& name)$/;"	f	class:Logger	signature:(const string& name)
+Logger	logger.hpp	/^	Logger(const string&);$/;"	p	class:Logger	access:private	signature:(const string&)
+Logger	logger.hpp	/^class Logger$/;"	c
+Logger::DEBUG	logger.hpp	/^		DEBUG,$/;"	e	enum:Logger::LogLevel
+Logger::ERROR	logger.hpp	/^		ERROR,$/;"	e	enum:Logger::LogLevel
+Logger::INFO	logger.hpp	/^		INFO$/;"	e	enum:Logger::LogLevel
+Logger::LogLevel	logger.hpp	/^	enum LogLevel$/;"	g	class:Logger	access:public
+Logger::Logger	logger.cpp	/^Logger::Logger(const string& name)$/;"	f	class:Logger	signature:(const string& name)
+Logger::Logger	logger.hpp	/^	Logger(const string&);$/;"	p	class:Logger	access:private	signature:(const string&)
+Logger::error	logger.cpp	/^void Logger::error(const char* format, ... )$/;"	f	class:Logger	signature:(const char* format, ... )
+Logger::error	logger.hpp	/^	void error(const char* format, ... );$/;"	p	class:Logger	access:public	signature:(const char* format, ... )
+Logger::getLogger	logger.cpp	/^Logger* Logger::getLogger(const string& name)$/;"	f	class:Logger	signature:(const string& name)
+Logger::getLogger	logger.hpp	/^	static Logger* getLogger(const string& name);$/;"	p	class:Logger	access:public	signature:(const string& name)
+Logger::log	logger.cpp	/^void Logger::log(LogLevel level, const char* format, ... )$/;"	f	class:Logger	signature:(LogLevel level, const char* format, ... )
+Logger::log	logger.hpp	/^	void log(LogLevel level, const char* format, ... );$/;"	p	class:Logger	access:public	signature:(LogLevel level, const char* format, ... )
+Logger::loggers	logger.hpp	/^	static map<string, Logger*> loggers;$/;"	m	class:Logger	access:private
+Logger::name	logger.hpp	/^	string name;$/;"	m	class:Logger	access:private
+Logger::~Logger	logger.cpp	/^Logger::~Logger()$/;"	f	class:Logger	signature:()
+Logger::~Logger	logger.hpp	/^	~Logger();$/;"	p	class:Logger	access:private	signature:()
+NFA	nfa.cpp	/^NFA::NFA()$/;"	f	class:NFA	signature:()
+NFA	nfa.hpp	/^		NFA();$/;"	p	class:NFA	access:public	signature:()
+NFA	nfa.hpp	/^class NFA$/;"	c
+NFA::NFA	nfa.cpp	/^NFA::NFA()$/;"	f	class:NFA	signature:()
+NFA::NFA	nfa.hpp	/^		NFA();$/;"	p	class:NFA	access:public	signature:()
+NFA::add	nfa.cpp	/^void NFA::add(const char *str)$/;"	f	class:NFA	signature:(const char *str)
+NFA::add	nfa.hpp	/^		void add(const char* str);$/;"	p	class:NFA	access:public	signature:(const char* str)
+NFA::candidate	nfa.hpp	/^		vector<const char*> candidate;$/;"	m	class:NFA	access:private
+NFA::enter	nfa.cpp	/^bool NFA::enter(char c)$/;"	f	class:NFA	signature:(char c)
+NFA::enter	nfa.hpp	/^		bool enter(char c);$/;"	p	class:NFA	access:public	signature:(char c)
+NFA::init	nfa.cpp	/^void NFA::init()$/;"	f	class:NFA	signature:()
+NFA::init	nfa.hpp	/^		void init();$/;"	p	class:NFA	access:public	signature:()
+NFA::posNow	nfa.hpp	/^		int posNow;$/;"	m	class:NFA	access:private
+NFA::strings	nfa.hpp	/^		vector<const char*> strings;$/;"	m	class:NFA	access:private
+NFA::tmp	nfa.hpp	/^		vector<const char*> tmp;$/;"	m	class:NFA	access:private
+NFA::trans	nfa.cpp	/^bool NFA::trans(char c)$/;"	f	class:NFA	signature:(char c)
+NFA::trans	nfa.hpp	/^		bool trans(char c);$/;"	p	class:NFA	access:public	signature:(char c)
+NFA::~NFA	nfa.cpp	/^NFA::~NFA()$/;"	f	class:NFA	signature:()
+NFA::~NFA	nfa.hpp	/^		~NFA();$/;"	p	class:NFA	access:public	signature:()
+NFA_HPP	nfa.hpp	3;"	d
+NOT_EQUAL	keywords.hpp	/^	NOT_EQUAL,$/;"	e	enum:Token
+NULLTOKEN	keywords.hpp	/^	NULLTOKEN,$/;"	e	enum:Token
+PRIMARY	keywords.hpp	/^	PRIMARY,$/;"	e	enum:Token
+QUIT	keywords.hpp	/^	QUIT,$/;"	e	enum:Token
+SCANNER_HPP	scanner.hpp	3;"	d
+SELECT	keywords.hpp	/^	SELECT,$/;"	e	enum:Token
+SQLScanner	scanner.cpp	/^SQLScanner::SQLScanner(const char* filename)$/;"	f	class:SQLScanner	signature:(const char* filename)
+SQLScanner	scanner.hpp	/^	SQLScanner(const char* filename);$/;"	p	class:SQLScanner	access:public	signature:(const char* filename)
+SQLScanner	scanner.hpp	/^class SQLScanner {$/;"	c
+SQLScanner::SQLScanner	scanner.cpp	/^SQLScanner::SQLScanner(const char* filename)$/;"	f	class:SQLScanner	signature:(const char* filename)
+SQLScanner::SQLScanner	scanner.hpp	/^	SQLScanner(const char* filename);$/;"	p	class:SQLScanner	access:public	signature:(const char* filename)
+SQLScanner::appendSubsequentAlpha	scanner.cpp	/^void SQLScanner::appendSubsequentAlpha()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::appendSubsequentAlpha	scanner.hpp	/^	void appendSubsequentAlpha();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::appendSubsequentDigits	scanner.cpp	/^void SQLScanner::appendSubsequentDigits()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::appendSubsequentDigits	scanner.hpp	/^	void appendSubsequentDigits();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::inputHandler	scanner.hpp	/^	InputHandler *inputHandler;$/;"	m	class:SQLScanner	access:private
+SQLScanner::isAlphaNow	scanner.cpp	/^bool SQLScanner::isAlphaNow() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isAlphaNow	scanner.hpp	/^	bool isAlphaNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::isEndOfInputNow	scanner.cpp	/^bool SQLScanner::isEndOfInputNow() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isEndOfInputNow	scanner.hpp	/^	bool isEndOfInputNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::isNegativeOrDigitsNow	scanner.cpp	/^bool SQLScanner::isNegativeOrDigitsNow() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isNegativeOrDigitsNow	scanner.hpp	/^	bool isNegativeOrDigitsNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::isOperatorNow	scanner.cpp	/^bool SQLScanner::isOperatorNow() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isOperatorNow	scanner.hpp	/^	bool isOperatorNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::isQuoteNow	scanner.cpp	/^bool SQLScanner::isQuoteNow() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isQuoteNow	scanner.hpp	/^	bool isQuoteNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::isSpaceNow	scanner.cpp	/^bool SQLScanner::isSpaceNow() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isSpaceNow	scanner.hpp	/^	bool isSpaceNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::isTerminator	scanner.cpp	/^bool SQLScanner::isTerminator() const$/;"	f	class:SQLScanner	signature:() const
+SQLScanner::isTerminator	scanner.hpp	/^	bool isTerminator() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+SQLScanner::lineBuffer	scanner.hpp	/^	string lineBuffer;$/;"	m	class:SQLScanner	access:private
+SQLScanner::logger	scanner.hpp	/^	Logger* logger;$/;"	m	class:SQLScanner	access:private
+SQLScanner::nextNonWhitespaceChar	scanner.cpp	/^void SQLScanner::nextNonWhitespaceChar()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::nextNonWhitespaceChar	scanner.hpp	/^	void nextNonWhitespaceChar();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::nextToken	scanner.cpp	/^void SQLScanner::nextToken()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::nextToken	scanner.hpp	/^	void nextToken();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::nfa	scanner.hpp	/^	NFA nfa;$/;"	m	class:SQLScanner	access:private
+SQLScanner::nowChar	scanner.hpp	/^	char nowChar;$/;"	m	class:SQLScanner	access:private
+SQLScanner::scan	scanner.cpp	/^void SQLScanner::scan()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::scan	scanner.hpp	/^	void scan();$/;"	p	class:SQLScanner	access:public	signature:()
+SQLScanner::scanChar	scanner.cpp	/^void SQLScanner::scanChar()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::scanChar	scanner.hpp	/^	void scanChar();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::scanIdentifier	scanner.cpp	/^void SQLScanner::scanIdentifier()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::scanIdentifier	scanner.hpp	/^	void scanIdentifier();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::scanNumber	scanner.cpp	/^void SQLScanner::scanNumber()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::scanNumber	scanner.hpp	/^	void scanNumber();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::scanOperator	scanner.cpp	/^void SQLScanner::scanOperator()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::scanOperator	scanner.hpp	/^	void scanOperator();$/;"	p	class:SQLScanner	access:private	signature:()
+SQLScanner::token	scanner.hpp	/^	Token token;$/;"	m	class:SQLScanner	access:private
+SQLScanner::tokenBuffer	scanner.hpp	/^	string tokenBuffer;$/;"	m	class:SQLScanner	access:private
+SQLScanner::~SQLScanner	scanner.cpp	/^SQLScanner::~SQLScanner()$/;"	f	class:SQLScanner	signature:()
+SQLScanner::~SQLScanner	scanner.hpp	/^	~SQLScanner();$/;"	p	class:SQLScanner	access:public	signature:()
+TABLE	keywords.hpp	/^	TABLE,$/;"	e	enum:Token
+TERMINATOR	keywords.hpp	/^	TERMINATOR,$/;"	e	enum:Token
+TOKEN_HPP	keywords.hpp	2;"	d
+Token	keywords.hpp	/^enum Token$/;"	g
+VALUES	keywords.hpp	/^	VALUES,$/;"	e	enum:Token
+add	nfa.cpp	/^void NFA::add(const char *str)$/;"	f	class:NFA	signature:(const char *str)
+add	nfa.hpp	/^		void add(const char* str);$/;"	p	class:NFA	access:public	signature:(const char* str)
+appendSubsequentAlpha	scanner.cpp	/^void SQLScanner::appendSubsequentAlpha()$/;"	f	class:SQLScanner	signature:()
+appendSubsequentAlpha	scanner.hpp	/^	void appendSubsequentAlpha();$/;"	p	class:SQLScanner	access:private	signature:()
+appendSubsequentDigits	scanner.cpp	/^void SQLScanner::appendSubsequentDigits()$/;"	f	class:SQLScanner	signature:()
+appendSubsequentDigits	scanner.hpp	/^	void appendSubsequentDigits();$/;"	p	class:SQLScanner	access:private	signature:()
+candidate	nfa.hpp	/^		vector<const char*> candidate;$/;"	m	class:NFA	access:private
+charNum	scanner.hpp	/^	int charNum;$/;"	m	class:InputHandler	access:private
+enter	nfa.cpp	/^bool NFA::enter(char c)$/;"	f	class:NFA	signature:(char c)
+enter	nfa.hpp	/^		bool enter(char c);$/;"	p	class:NFA	access:public	signature:(char c)
+error	logger.cpp	/^void Logger::error(const char* format, ... )$/;"	f	class:Logger	signature:(const char* format, ... )
+error	logger.hpp	/^	void error(const char* format, ... );$/;"	p	class:Logger	access:public	signature:(const char* format, ... )
+getLogger	logger.cpp	/^Logger* Logger::getLogger(const string& name)$/;"	f	class:Logger	signature:(const string& name)
+getLogger	logger.hpp	/^	static Logger* getLogger(const string& name);$/;"	p	class:Logger	access:public	signature:(const string& name)
+init	nfa.cpp	/^void NFA::init()$/;"	f	class:NFA	signature:()
+init	nfa.hpp	/^		void init();$/;"	p	class:NFA	access:public	signature:()
+inputFile	scanner.hpp	/^	ifstream inputFile;$/;"	m	class:InputHandler	access:private
+inputHandler	scanner.hpp	/^	InputHandler *inputHandler;$/;"	m	class:SQLScanner	access:private
+isAlphaNow	scanner.cpp	/^bool SQLScanner::isAlphaNow() const$/;"	f	class:SQLScanner	signature:() const
+isAlphaNow	scanner.hpp	/^	bool isAlphaNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+isEndOfInputNow	scanner.cpp	/^bool SQLScanner::isEndOfInputNow() const$/;"	f	class:SQLScanner	signature:() const
+isEndOfInputNow	scanner.hpp	/^	bool isEndOfInputNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+isNegativeOrDigitsNow	scanner.cpp	/^bool SQLScanner::isNegativeOrDigitsNow() const$/;"	f	class:SQLScanner	signature:() const
+isNegativeOrDigitsNow	scanner.hpp	/^	bool isNegativeOrDigitsNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+isOperatorNow	scanner.cpp	/^bool SQLScanner::isOperatorNow() const$/;"	f	class:SQLScanner	signature:() const
+isOperatorNow	scanner.hpp	/^	bool isOperatorNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+isQuoteNow	scanner.cpp	/^bool SQLScanner::isQuoteNow() const$/;"	f	class:SQLScanner	signature:() const
+isQuoteNow	scanner.hpp	/^	bool isQuoteNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+isSpaceNow	scanner.cpp	/^bool SQLScanner::isSpaceNow() const$/;"	f	class:SQLScanner	signature:() const
+isSpaceNow	scanner.hpp	/^	bool isSpaceNow() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+isTerminator	scanner.cpp	/^bool SQLScanner::isTerminator() const$/;"	f	class:SQLScanner	signature:() const
+isTerminator	scanner.hpp	/^	bool isTerminator() const;$/;"	p	class:SQLScanner	access:private	signature:() const
+lineBuffer	scanner.hpp	/^	string lineBuffer;$/;"	m	class:InputHandler	access:private
+lineBuffer	scanner.hpp	/^	string lineBuffer;$/;"	m	class:SQLScanner	access:private
+lineNum	scanner.hpp	/^	int lineNum;$/;"	m	class:InputHandler	access:private
+log	logger.cpp	/^void Logger::log(LogLevel level, const char* format, ... )$/;"	f	class:Logger	signature:(LogLevel level, const char* format, ... )
+log	logger.hpp	/^	void log(LogLevel level, const char* format, ... );$/;"	p	class:Logger	access:public	signature:(LogLevel level, const char* format, ... )
+logger	scanner.hpp	/^	Logger* logger;$/;"	m	class:SQLScanner	access:private
+loggers	logger.hpp	/^	static map<string, Logger*> loggers;$/;"	m	class:Logger	access:private
+name	logger.hpp	/^	string name;$/;"	m	class:Logger	access:private
+next	scanner.cpp	/^char InputHandler::next()$/;"	f	class:InputHandler	signature:()
+next	scanner.hpp	/^	char next();$/;"	p	class:InputHandler	access:public	signature:()
+nextNonWhitespaceChar	scanner.cpp	/^void SQLScanner::nextNonWhitespaceChar()$/;"	f	class:SQLScanner	signature:()
+nextNonWhitespaceChar	scanner.hpp	/^	void nextNonWhitespaceChar();$/;"	p	class:SQLScanner	access:private	signature:()
+nextToken	scanner.cpp	/^void SQLScanner::nextToken()$/;"	f	class:SQLScanner	signature:()
+nextToken	scanner.hpp	/^	void nextToken();$/;"	p	class:SQLScanner	access:private	signature:()
+nfa	scanner.hpp	/^	NFA nfa;$/;"	m	class:SQLScanner	access:private
+nowChar	scanner.hpp	/^	char nowChar;$/;"	m	class:SQLScanner	access:private
+posNow	nfa.hpp	/^		int posNow;$/;"	m	class:NFA	access:private
+scan	scanner.cpp	/^void SQLScanner::scan()$/;"	f	class:SQLScanner	signature:()
+scan	scanner.hpp	/^	void scan();$/;"	p	class:SQLScanner	access:public	signature:()
+scanChar	scanner.cpp	/^void SQLScanner::scanChar()$/;"	f	class:SQLScanner	signature:()
+scanChar	scanner.hpp	/^	void scanChar();$/;"	p	class:SQLScanner	access:private	signature:()
+scanIdentifier	scanner.cpp	/^void SQLScanner::scanIdentifier()$/;"	f	class:SQLScanner	signature:()
+scanIdentifier	scanner.hpp	/^	void scanIdentifier();$/;"	p	class:SQLScanner	access:private	signature:()
+scanNumber	scanner.cpp	/^void SQLScanner::scanNumber()$/;"	f	class:SQLScanner	signature:()
+scanNumber	scanner.hpp	/^	void scanNumber();$/;"	p	class:SQLScanner	access:private	signature:()
+scanOperator	scanner.cpp	/^void SQLScanner::scanOperator()$/;"	f	class:SQLScanner	signature:()
+scanOperator	scanner.hpp	/^	void scanOperator();$/;"	p	class:SQLScanner	access:private	signature:()
+strings	nfa.hpp	/^		vector<const char*> strings;$/;"	m	class:NFA	access:private
+tmp	nfa.hpp	/^		vector<const char*> tmp;$/;"	m	class:NFA	access:private
+token	scanner.hpp	/^	Token token;$/;"	m	class:SQLScanner	access:private
+tokenBuffer	scanner.hpp	/^	string tokenBuffer;$/;"	m	class:SQLScanner	access:private
+trans	nfa.cpp	/^bool NFA::trans(char c)$/;"	f	class:NFA	signature:(char c)
+trans	nfa.hpp	/^		bool trans(char c);$/;"	p	class:NFA	access:public	signature:(char c)
+~Logger	logger.cpp	/^Logger::~Logger()$/;"	f	class:Logger	signature:()
+~Logger	logger.hpp	/^	~Logger();$/;"	p	class:Logger	access:private	signature:()
+~NFA	nfa.cpp	/^NFA::~NFA()$/;"	f	class:NFA	signature:()
+~NFA	nfa.hpp	/^		~NFA();$/;"	p	class:NFA	access:public	signature:()
+~SQLScanner	scanner.cpp	/^SQLScanner::~SQLScanner()$/;"	f	class:SQLScanner	signature:()
+~SQLScanner	scanner.hpp	/^	~SQLScanner();$/;"	p	class:SQLScanner	access:public	signature:()

@@ -6,9 +6,11 @@
 #include <string>
 #include "keywords.hpp"
 #include "logger.hpp"
+#include "nfa.hpp"
 
 using std::string;
 using std::ifstream;
+
 
 class InputHandler 
 {
@@ -35,12 +37,13 @@ private:
 	string tokenBuffer;
 	
 	InputHandler *inputHandler;
+	NFA nfa;
 	Logger* logger;
 	
 	Token token;
 	char nowChar;
 	
-	void next();
+	void nextToken();
 	void nextNonWhitespaceChar();
 	
 	bool isSpaceNow() const;
@@ -48,8 +51,14 @@ private:
 	bool isOperatorNow() const;
 	bool isQuoteNow() const;
 	bool isEndOfInputNow() const;
-	
-	void scanValue();
+	bool isTerminator() const;
+	bool isNegativeOrDigitsNow() const;
+
+	void appendSubsequentDigits();
+	void appendSubsequentAlpha();
+
+	void scanChar();
+	void scanNumber();
 	void scanIdentifier();
 	void scanOperator();
 	
