@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <cstdarg>
 
+map<string, Logger*> Logger::loggers;
+
 Logger* Logger::getLogger(const string& name)
 {
 	auto it = loggers.find(name);
@@ -58,6 +60,7 @@ void Logger::log(LogLevel level, const char* format, ... )
 	va_start(args, format);
 	vprintf(format, args);
 	va_end(args);
+	putchar('\n');
 }
 
 void Logger::error(const char* format, ... )
@@ -68,4 +71,5 @@ void Logger::error(const char* format, ... )
 	va_start(args, format);
 	vprintf(format, args);
 	va_end(args);
+	putchar('\n');
 }

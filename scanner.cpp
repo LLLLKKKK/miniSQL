@@ -1,29 +1,45 @@
 #include <cctype>
+#include <cassert>
 #include "logger.hpp"
 #include "scanner.hpp"
 #include "nfa.hpp"
 
 SQLScanner::SQLScanner(const char* filename)
 {
-	inputHandler = new InputHandler(filename);
+	input = new InputHandler(filename);
+	nowChar = input->next();
+
 	logger = Logger::getLogger("SQL Scanner");
+
+	for (int i = FIRST_TOKEN; i <= LAST_TOKEN; i++)
+	{
+		nfa.add(tokenStr[i], (Token)i);
+	}
+
+	tokenBuffer.reserve(30);
 }
 
 SQLScanner::~SQLScanner()
 {
-	delete inputHandler;
+	delete input;
 }
 
 void SQLScanner::nextNonWhitespaceChar()
 {
-	nowChar = inputHandler->next();
 	while(isSpaceNow())
-		nowChar = inputHandler->next();
+		nowChar = input->next();
+}
+
+void SQLScanner::nextChar()
+{
+	nowChar = input->next();
 }
 
 void SQLScanner::scan()
 {
 	nextNonWhitespaceChar();
+
+	tokenBuffer.clear();
 
 	if (isAlphaNow())
 	{
@@ -41,6 +57,26 @@ void SQLScanner::scan()
 	{
 		scanOperator();
 	}
+	else if (nowChar == '(')
+	{
+		token = LEFT_BRACE;
+		nowChar = input->next();
+	}
+	else if (nowChar == ')')
+	{
+		token = RIGHT_BRACE;
+		nowChar = input->next();
+	}
+	else if (nowChar == '*')
+	{
+		token = STAR;
+		nowChar = input->next();
+	}
+	else if (nowChar == ',')
+	{
+		token = SLICE;
+		nowChar = input->next();
+	}
 	else if (isEndOfInputNow())
 	{
 		token = NULLTOKEN;
@@ -48,24 +84,32 @@ void SQLScanner::scan()
 	else if (isTerminator())
 	{
 		token = TERMINATOR;
+		nowChar = input->next();
 	}
 	else
 	{
-		logger->error("unknown token at line %d char %d", 
-			inputHandler->GetLineNum(), inputHandler->GetCharNum());
+		logger->error("unknown token %c at line %d char %d", 
+			nowChar, input->GetLineNum(), input->GetCharNum());
 		token = ERROR;
+		nowChar = input->next();
 	}
+
 }
 
-void SQLScanner::nextToken()
+const char* SQLScanner::getTokenBuffer() const
+{
+	return tokenBuffer.c_str();
+}
+
+Token SQLScanner::nextToken()
 {
 	scan();
+	return token;
 }
 
 void SQLScanner::scanNumber()
 {
 	tokenBuffer.push_back(nowChar);
-	next();
 	appendSubsequentDigits();
 	if (nowChar == '.')
 	{
@@ -81,33 +125,60 @@ void SQLScanner::scanNumber()
 
 void SQLScanner::scanChar()
 {
-	next();
+	nextChar();
 	while(!isQuoteNow())
 	{
 		tokenBuffer.push_back(nowChar);
-		next();
+		nextChar();
 	}
-	next();
+	nextChar();
 	token = CHAR;
 }
 
 void SQLScanner::scanIdentifier()
 {
+	nfa.init();
+
 	if (nfa.enter(nowChar))
 	{
-			
+		tokenBuffer.push_back(nowChar);
+		nextChar();
+		
+		while(isAlphaNow() && nfa.trans(nowChar))
+		{
+			tokenBuffer.push_back(nowChar);
+			nextChar();
+		}
+		
+		if (isAlphaNow())
+		{
+			tokenBuffer.push_back(nowChar);
+			appendSubsequentAlpha();
+			token = IDENTIFIER;
+		}
+		else
+		{
+			token = nfa.accept();
+			if (token == NULLTOKEN)
+				token = IDENTIFIER;
+		}
 	}
-	appendSubsequentAlpha();
+	else
+	{
+		tokenBuffer.push_back(nowChar);
+		appendSubsequentAlpha();
+		token = IDENTIFIER;
+	}
 }
 
 void SQLScanner::scanOperator()
 {
 	if (nowChar == '>')
 	{
-		next();
+		nextChar();
 		if (nowChar == '=')
 		{
-			next();
+			nextChar();
 			token = GREATER_EQUAL;
 		}
 		else
@@ -117,15 +188,15 @@ void SQLScanner::scanOperator()
 	}
 	else if (nowChar == '<')
 	{
-		next();
+		nextChar();
 		if (nowChar == '=')
 		{
-			next();
+			nextChar();
 			token = LESS_EQUAL;
 		}
 		else if (nowChar == '>')
 		{
-			next();
+			nextChar();
 			token = NOT_EQUAL;
 		}
 		else
@@ -135,45 +206,47 @@ void SQLScanner::scanOperator()
 	}
 	else if (nowChar == '=')
 	{
-		next();
+		nextChar();
 		if (nowChar == '=')
 		{
-			next();
+			nextChar();
 			token = EQUAL;
 		}
 		else
 		{
 			token = ERROR;
 			logger->error("unexpected token at line %d char %d", 
-				inputHandler->GetLineNum(), inputHandler->GetCharNum());
+				input->GetLineNum(), input->GetCharNum());
 		}
 	}
 	else
 	{
-
+		assert(false);	
 	}
 }
 
 void SQLScanner::appendSubsequentAlpha()
 {
+	nextChar();
 	while (isalpha(nowChar))
 	{	
 		tokenBuffer.push_back(nowChar);
-		next();
+		nextChar();
 	}
 }
 
 void SQLScanner::appendSubsequentDigits()
 {
+	nextChar();
 	while (isdigit(nowChar))
 	{
 		tokenBuffer.push_back(nowChar);
-		next();
+		nextChar();
 	}
 }
 bool SQLScanner::isSpaceNow() const
 {
-	return isalpha(nowChar);
+	return isspace(nowChar);
 }
 
 bool SQLScanner::isTerminator() const
@@ -188,7 +261,7 @@ bool SQLScanner::isAlphaNow() const
 
 bool SQLScanner::isQuoteNow() const
 {
-	return nowChar == '`';
+	return nowChar == '\'';
 }
 
 bool SQLScanner::isOperatorNow() const
@@ -208,7 +281,10 @@ bool SQLScanner::isEndOfInputNow() const
 
 InputHandler::InputHandler(const char* filename)
 {
+	lineBuffer.reserve(1000);
+
 	inputFile.open(filename, std::ifstream::in);
+	std::getline(inputFile, lineBuffer);
 	
 	charNum = 0;
 	lineNum = 0;
@@ -222,15 +298,13 @@ char InputHandler::next()
 		lineNum++;
 		charNum = 0;
 	}
-	
+
 	if (inputFile.eof())
 	{
 		return -1;
 	}
-	else
-	{
-		return lineBuffer[charNum++];
-	}
+
+	return lineBuffer[charNum++];
 }
 
 int InputHandler::GetLineNum() const 

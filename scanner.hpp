@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <string>
-#include "keywords.hpp"
+#include "token.hpp"
 #include "logger.hpp"
 #include "nfa.hpp"
 
@@ -33,18 +33,18 @@ public:
 class SQLScanner {
 
 private:
-	string lineBuffer;
 	string tokenBuffer;
 	
-	InputHandler *inputHandler;
+	InputHandler *input;
 	NFA nfa;
 	Logger* logger;
 	
 	Token token;
 	char nowChar;
 	
-	void nextToken();
+
 	void nextNonWhitespaceChar();
+	void nextChar();
 	
 	bool isSpaceNow() const;
 	bool isAlphaNow() const;
@@ -66,6 +66,8 @@ public:
 	SQLScanner(const char* filename);
 	~SQLScanner();
 	
+	const char* getTokenBuffer() const;
+	Token nextToken();
 	void scan();
 
 };
