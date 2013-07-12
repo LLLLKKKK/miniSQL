@@ -15,3 +15,9 @@
 
 # large test file
 test/100wtest.sql
+
+# build folder
+build
+
+# vim tags
+tags
