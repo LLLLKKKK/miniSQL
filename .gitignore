@@ -21,3 +21,6 @@ build
 
 # vim tags
 tags
+
+# large test file
+test/fixture/100w_test.sql
