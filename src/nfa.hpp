@@ -12,23 +12,23 @@ using std::vector;
 
 class NFA
 {
-	private:
-		vector<const char*> strings;
-		vector<const char*> candidate;
-		vector<const char*> tmp;
-		map<const char*, Token> tokenMap;
-			
-		int posNow;
+  private:
+    vector<const char*> strings;
+    vector<const char*> candidate;
+    vector<const char*> tmp;
+    map<const char*, Token> tokenMap;
+      
+    int posNow;
 
-	public:
-		NFA();
-		~NFA();
+  public:
+    NFA();
+    ~NFA();
 
-		void init();
-		void add(const char* str, Token token);
-		bool enter(char c);
-		bool trans(char c);
-		Token accept();
+    void init();
+    void add(const char* str, Token token);
+    bool enter(char c);
+    bool trans(char c);
+    Token accept();
 };
 
 #endif

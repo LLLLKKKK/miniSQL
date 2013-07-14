@@ -3,50 +3,50 @@
 
 enum Token
 {
-	// sql keywords
-	CREATE,
-	INSERT,
-	SELECT,
-	DELETE,
-	QUIT,
+  // sql keywords
+  CREATE,
+  INSERT,
+  SELECT,
+  DELETE,
+  QUIT,
 
-	PRIMARY,
-	KEY,
-	INDEX,
-	VALUES,
-	TABLE,
-	ON,
-	WHERE,
-	FROM,
+  PRIMARY,
+  KEY,
+  INDEX,
+  VALUES,
+  TABLE,
+  ON,
+  WHERE,
+  FROM,
 
-	// operators
-	GREATER,
-	LESS,
-	GREATER_EQUAL,
-	LESS_EQUAL,
-	NOT_EQUAL,
-	EQUAL,
-	LEFT_BRACE,
-	RIGHT_BRACE,
-	STAR,
-	SLICE,
+  // operators
+  GREATER,
+  LESS,
+  GREATER_EQUAL,
+  LESS_EQUAL,
+  NOT_EQUAL,
+  EQUAL,
+  LEFT_BRACE,
+  RIGHT_BRACE,
+  STAR,
+  SLICE,
 
-	// data types
-	INTEGER,
-	FLOAT,
-	CHAR,
-	
-	// identifier
-	IDENTIFIER,
+  // data types
+  INTEGER,
+  FLOAT,
+  CHAR,
+  
+  // identifier
+  IDENTIFIER,
 
-	TERMINATOR,
+  TERMINATOR,
 
-	NULLTOKEN,
-	ERROR,
+  NULLTOKEN,
+  ERROR,
 
-	FIRST_TOKEN = CREATE,
-	LAST_TOKEN = ERROR
-	
+  FIRST_TOKEN = CREATE,
+  LAST_TOKEN = ERROR
+  
 };
 
 extern const char* tokenStr[];

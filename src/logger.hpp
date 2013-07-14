@@ -11,24 +11,24 @@ class Logger
 {
 
 private:
-	static map<string, Logger*> loggers;
-	string name;
+  static map<string, Logger*> loggers;
+  string name;
 
-	Logger(const string&);
-	~Logger();
-	
+  Logger(const string&);
+  ~Logger();
+  
 public:
 
-	enum LogLevel
-	{
-		ERROR,
-		DEBUG,
-		INFO
-	};
-	
-	static Logger* getLogger(const string& name);
-	void log(LogLevel level, const char* format, ... );
-	void error(const char* format, ... );
+  enum LogLevel
+  {
+    ERROR,
+    DEBUG,
+    INFO
+  };
+  
+  static Logger* getLogger(const string& name);
+  void log(LogLevel level, const char* format, ... );
+  void error(const char* format, ... );
 
 };
 
