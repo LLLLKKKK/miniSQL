@@ -2,14 +2,15 @@
 #ifndef SCANNER_HPP
 #define SCANNER_HPP
 
-#include "token.hpp"
 #include <string>
 #include <fstream>
+
+#include "token.hpp"
+#include "logger.hpp"
 
 using std::string;
 using std::ifstream;
 
-class Logger;
 class NFA;
 
 class InputHandler 
@@ -23,22 +24,21 @@ private:
   
 public:
 
-  InputHandler(const char* filename);
-  int GetLineNum() const;
-  int GetCharNum() const;
+    InputHandler(const char* filename);
+    int GetLineNum() const;
+    int GetCharNum() const;
   
-  char next();
+    char next();
 };
 
 
 class SQLScanner {
 
 private:
-  string tokenBuffer;
-  
-  InputHandler *input;
-  NFA* nfa;
-  Logger* logger;
+    string tokenBuffer;
+    InputHandler *input;
+    NFA* nfa;
+    LOGGER_PTR logger;
   
   Token token;
   char nowChar;

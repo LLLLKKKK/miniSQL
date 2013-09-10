@@ -4,36 +4,32 @@
 #include "scanner.hpp"
 #include "nfa.hpp"
 
-SQLScanner::SQLScanner(const char* filename)
-{
-  input = new InputHandler(filename);
-  nfa = new NFA;
-  nowChar = input->next();
-
-  logger = Logger::getLogger("SQL Scanner");
-
-  for (int i = FIRST_TOKEN; i <= LAST_TOKEN; i++)
-  {
-    nfa->add(tokenStr[i], (Token)i);
-  }
-
-  tokenBuffer.reserve(30);
-}
-
-SQLScanner::~SQLScanner()
-{
-  delete input;
-}
-
-void SQLScanner::nextNonWhitespaceChar()
-{
-  while(isSpaceNow())
+SQLScanner::SQLScanner(const char* filename) {
+    input = new InputHandler(filename);
+    nfa = new NFA;
     nowChar = input->next();
+    
+    logger = Logger::getLogger("SQL Scanner");
+    
+    for (int i = FIRST_TOKEN; i <= LAST_TOKEN; i++) {
+        nfa->add(tokenStr[i], (Token)i);
+    }
+    
+    tokenBuffer.reserve(30);
 }
 
-void SQLScanner::nextChar()
-{
-  nowChar = input->next();
+SQLScanner::~SQLScanner() {
+    delete nfa;
+    delete input;
+}
+
+void SQLScanner::nextNonWhitespaceChar() {
+    while(isSpaceNow())
+        nowChar = input->next();
+}
+
+void SQLScanner::nextChar() {
+    nowChar = input->next();
 }
 
 void SQLScanner::scan()
@@ -89,10 +85,10 @@ void SQLScanner::scan()
   }
   else
   {
-    logger->error("unknown token %c at line %d char %d", 
-      nowChar, input->GetLineNum(), input->GetCharNum());
-    token = ERROR;
-    nowChar = input->next();
+      LOG_ERROR(logger, "unknown token %c at line %d char %d", 
+                nowChar, input->GetLineNum(), input->GetCharNum());
+      token = ERROR;
+      nowChar = input->next();
   }
 
 }
@@ -150,12 +146,13 @@ void SQLScanner::scanIdentifier()
       tokenBuffer.push_back(nowChar);
       nextChar();
     }
-    
+
     if (isAlphaNow())
     {
       tokenBuffer.push_back(nowChar);
       appendSubsequentAlpha();
       token = IDENTIFIER;
+
     }
     else
     {
@@ -215,14 +212,14 @@ void SQLScanner::scanOperator()
     }
     else
     {
-      token = ERROR;
-      logger->error("unexpected token at line %d char %d", 
-        input->GetLineNum(), input->GetCharNum());
+        token = ERROR;
+        LOG_ERROR(logger, "unexpected token at line %d char %d", 
+                  input->GetLineNum(), input->GetCharNum());
     }
   }
   else
   {
-    assert(false);  
+      assert(false);  
   }
 }
 
@@ -298,7 +295,7 @@ InputHandler::InputHandler(const char* filename)
 
 char InputHandler::next()
 {
-  if (charNum == lineBuffer.size())
+    if (charNum == (int)lineBuffer.size())
   {
     std::getline(inputFile, lineBuffer);
     lineNum++;

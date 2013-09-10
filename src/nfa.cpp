@@ -50,7 +50,7 @@ bool NFA::trans(char c)
   }
   else
   {
-    for (int i = 0;i < candidate.size(); i++)
+    for (size_t i = 0;i < candidate.size(); i++)
     {
       const char* strNow = candidate[i];
       if (strNow[posNow] == c)
