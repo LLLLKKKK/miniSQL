@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cassert>
 #include "SQLParser.hpp"
-#include "logger.hpp"
 #include "token.hpp"
 #include "SQLScanner.hpp"
 

@@ -6,7 +6,7 @@
 #include <list>
 #include <string>
 #include "token.hpp"
-#include "logger.hpp"
+#include "Logger.hpp"
 
 class SQLScanner;
 

@@ -2,7 +2,6 @@
 #include <cassert>
 
 #include "SQLScanner.hpp"
-#include "logger.hpp"
 #include "TokenAccepter.hpp"
 #include "InputHandler.hpp"
 

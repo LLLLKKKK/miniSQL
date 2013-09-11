@@ -4,7 +4,7 @@
 
 #include <string>
 #include <istream>
-#include "logger.hpp"
+#include "Logger.hpp"
 
 class InputHandler {
 public:

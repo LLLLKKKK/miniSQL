@@ -5,7 +5,7 @@
 #include <string>
 
 #include "token.hpp"
-#include "logger.hpp"
+#include "Logger.hpp"
 
 using std::string;
 
