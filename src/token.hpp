@@ -5,11 +5,15 @@ enum Token {
 
     // sql keywords
     CREATE,
+    DROP,
     INSERT,
     SELECT,
     DELETE,
     QUIT,
-    
+    EXECFILE,
+
+    UNIQUE,
+    INTO,
     PRIMARY,
     KEY,
     INDEX,
@@ -20,6 +24,7 @@ enum Token {
     FROM,
 
     // operators
+    AND,
     GREATER,
     LESS,
     GREATER_EQUAL,

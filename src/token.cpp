@@ -1,11 +1,15 @@
 const char* tokenStr[] = {
 
     "create",
+    "drop",
     "insert",
     "select",
     "delete",
     "quit",
-    
+    "execfile",
+
+    "unique",
+    "into",
     "primary",
     "key",
     "index",
@@ -16,6 +20,7 @@ const char* tokenStr[] = {
     "from",
     
     // operators
+    "and",
     "GREATER",
     "LESS",
     "GREATER_EQUAL",

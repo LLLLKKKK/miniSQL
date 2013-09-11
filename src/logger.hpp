@@ -36,6 +36,8 @@ public:
 };
 
 
+#define _NO_VERBOSE_
+
 #ifndef _NO_LOG_
 
 #define LOG(logger, level, format, args...)                             \
