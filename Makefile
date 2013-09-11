@@ -2,7 +2,7 @@ CC := g++
 SRCDIR := src
 test_SRCDIR := test
 BUILDDIR := build
-CXXFLAGS := -std=c++0x -Wall -O2
+CXXFLAGS := -std=c++0x -Wall -O2 -g
 TARGET := test_main
 
 SRCEXT := cpp

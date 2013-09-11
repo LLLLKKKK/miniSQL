@@ -180,15 +180,7 @@ void SQLScanner::scanOperator() {
     }
     else if (nowChar == '=') {
         nextChar();
-        if (nowChar == '=') {
-            nextChar();
-            token = EQUAL;
-        }
-        else {
-            token = ERROR;
-            LOG_ERROR(logger, "unexpected token at line %d char %d", 
-                      input->GetLineNum(), input->GetCharNum());
-        }
+        token = EQUAL;
     }
     else {
         assert(false);  

@@ -21,10 +21,10 @@ BOOST_AUTO_TEST_CASE( simpleTest )
 {
     std::map<std::string,std::string> testFiles;
     testFiles["create.sql"] = "create.tree";
-    //testFiles["insert.sql"] = "create.tree";
+    testFiles["insert.sql"] = "create.tree";
     testFiles["drop.sql"] = "create.tree";
     testFiles["select.sql"] = "create.tree";
-    //testFiles["delete.sql"] = "create.tree";
+    testFiles["delete.sql"] = "create.tree";
     testFiles["cmd.sql"] = "create.tree";
 
     for (auto it = testFiles.begin(); it != testFiles.end(); it++) {

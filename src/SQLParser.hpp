@@ -20,8 +20,9 @@ struct ParseNode {
 
 
 struct CharNode : public ParseNode {
-    char c_;
-    CharNode(char c) : ParseNode(CHAR), c_(c) { }
+    std::string c_;
+    CharNode(const std::string& c) : ParseNode(CHAR), c_(c) { }
+    CharNode() : ParseNode(CHAR) { }
 };
 
 struct IntNode : public ParseNode {
@@ -73,7 +74,7 @@ private:
     PARSENODE_PTR parseCondition();    
     PARSENODE_PTR parseType();
 
-    PARSENODE_PTR parseOprand();    
+    PARSENODE_PTR parseOperator();
     PARSENODE_PTR parseLiteral();
 
     bool startsIdentifier(const Token token);
