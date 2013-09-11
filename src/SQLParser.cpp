@@ -103,7 +103,7 @@ PARSENODE_PTR SQLParser::parseCreate() {
         syntaxError(nowReading, "expect create!");
         return nullptr;
     }
-    LOG_TRACE(logger, "parse create statement.");
+    //LOG_TRACE(logger, "parse create statement.");
 
     PARSENODE_PTR createNode = PARSENODE_PTR(new ParseNode(CREATE));
     readToken();
@@ -117,7 +117,7 @@ PARSENODE_PTR SQLParser::parseCreate() {
         expect(LEFT_BRACE);
         while (startsIdentifier(nowReading)) {
             PARSENODE_PTR id = parseIdentifier();
-            LOG_TRACE(logger, "parse id %s.", ((IdentifierNode*)id.get())->id_.c_str());
+            //LOG_TRACE(logger, "parse id %s.", ((IdentifierNode*)id.get())->id_.c_str());
             PARSENODE_PTR type = parseType();
             if (nowReading == UNIQUE) {
                 readToken();
@@ -259,7 +259,7 @@ PARSENODE_PTR SQLParser::parseInsert() {
         syntaxError(nowReading, "expect insert token!");        
         return nullptr;
     }
-    LOG_TRACE(logger, "parse insert statement.");
+    //LOG_TRACE(logger, "parse insert statement.");
 
     PARSENODE_PTR insertNode = PARSENODE_PTR(new ParseNode(INSERT));
     readToken();

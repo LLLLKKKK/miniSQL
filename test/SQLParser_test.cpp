@@ -35,12 +35,6 @@ BOOST_AUTO_TEST_CASE( simpleTest )
         
         InputHandler inputHandler(&file);
         SQLScanner scanner(&inputHandler);
-        // Token token = scanner.nextToken();
-        // while (token != NULLTOKEN) {
-        //     cout << tokenStr[token] << ' ' << scanner.getTokenBuffer() << '\n';
-        //     token = scanner.nextToken();
-        // }
-    
         SQLParser parser(&scanner);
         
         std::list<PARSENODE_PTR > statements = parser.parseSQL();
@@ -63,7 +57,14 @@ BOOST_AUTO_TEST_CASE( speedTest )
     SQLScanner scanner(&inputHandler);
     SQLParser parser(&scanner);
 
+    std::list<PARSENODE_PTR > statements = parser.parseSQL();
+        
+
     boost::posix_time::ptime stop_time = boost::posix_time::microsec_clock::local_time();
+
+    std::stringstream pstream;
+    ParseTreePrinter::print(pstream, statements.back());
+    std::cout << pstream.str() << std::endl;
     
     boost::posix_time::time_duration dur_ms = stop_time - start_time;
     BOOST_TEST_MESSAGE( "100w SQL time cost: " << dur_ms);
