@@ -10,8 +10,13 @@ struct Node {
     int n_ptrs;
     bool is_leaf;
 
+<<<<<<< HEAD
     T* keys;
     void** ptrs;
+=======
+        T *keys;
+        void** ptrs;
+>>>>>>> master
         
     Node():is_leaf(true), n_keys(0) {}
 };
