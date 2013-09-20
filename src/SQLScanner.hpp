@@ -9,6 +9,8 @@
 
 using std::string;
 
+namespace miniSQL {
+
 class TokenAccepter;
 class InputHandler;
 
@@ -51,7 +53,9 @@ private:
     void scanOperator();
 
 private:
-    DECLARE_LOG();
+    DECLARE_LOGGER();
 };
+
+}
 
 #endif

@@ -5,6 +5,7 @@
 
 using std::cout;
 using namespace boost::unit_test;
+using namespace miniSQL;
 
 BOOST_AUTO_TEST_SUITE ( TokenAccepter_test_suite )
 

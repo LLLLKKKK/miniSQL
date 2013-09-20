@@ -3,6 +3,9 @@
 #define FIXEDSIZECHUNKALLOCATOR_HPP
 
 #include "common.h"
+#include <stdint.h>
+
+namespace miniSQL {
 
 class FixedSizeChunkAllocator
 {
@@ -10,22 +13,24 @@ public:
     FixedSizeChunkAllocator();
     ~FixedSizeChunkAllocator();
 
-    DISALLOW_COPY_AND_ASSGIN(FixedSizeChunkAllocator);
+    DISALLOW_COPY_AND_ASSIGN(FixedSizeChunkAllocator);
     
 public:
-    void init(uint32_t requestSize, uint32_t maxRequestChunk)
+    void init(uint32_t requestSize, uint32_t maxRequestChunk);
     void release();
     void* allocate(uint32_t size);
     void free(void* const addr);
 
 private:
-    size_t _fixedSize;
+    uint32_t _fixedSize;
     char *_free;
     char *_end;
     void *_freeList;
-    size_t _count;
-    size_t _maxRequestChunk;
+    uint32_t _count;
+    uint32_t _maxRequestChunk;
     char *_buffer;
 };
+
+}
 
 #endif

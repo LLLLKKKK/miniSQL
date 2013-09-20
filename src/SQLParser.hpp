@@ -9,7 +9,10 @@
 #include "token.hpp"
 #include "Logger.hpp"
 
+namespace miniSQL {
+
 class SQLScanner;
+class Logger;
 
 #define PARSENODE_PTR std::shared_ptr<ParseNode>
 
@@ -45,7 +48,7 @@ class SQLParser {
 public:
     SQLParser(SQLScanner* scanner);
     
-    DISALLOW_COPY_AND_ASSGIN(SQLParser);
+    DISALLOW_COPY_AND_ASSIGN(SQLParser);
     
 public:
     std::list<PARSENODE_PTR> parseSQL();
@@ -100,7 +103,9 @@ private:
     bool error_;
 
 private:
-    DECALRE_LOG();
+    DECLARE_LOGGER();
 };
+
+}
 
 #endif

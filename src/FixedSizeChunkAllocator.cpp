@@ -1,6 +1,9 @@
 
-
+#include "FixedSizeChunkAllocator.hpp"
 #include <cstdlib>
+#include <cassert>
+
+namespace miniSQL {
 
 FixedSizeChunkAllocator::FixedSizeChunkAllocator() {
     _fixedSize = 0;
@@ -53,4 +56,6 @@ void FixedSizeChunkAllocator::release() {
         ::free(_buffer);
         _buffer = NULL;
     }
+}
+
 }

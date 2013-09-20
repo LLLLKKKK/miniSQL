@@ -10,6 +10,8 @@
 using std::map;
 using std::vector;
 
+namespace miniSQL {
+
 class TokenAccepter
 {
 public:
@@ -30,5 +32,7 @@ private:
     int posNow;
     static int reserveSpace;
 };
+
+}
 
 #endif

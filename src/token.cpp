@@ -1,3 +1,6 @@
+
+namespace miniSQL {
+
 const char* tokenStr[] = {
 
     "create",
@@ -45,3 +48,5 @@ const char* tokenStr[] = {
     "NULLTOKEN",
     "ERROR",
 };
+
+}

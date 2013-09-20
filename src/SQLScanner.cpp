@@ -5,7 +5,9 @@
 #include "TokenAccepter.hpp"
 #include "InputHandler.hpp"
 
-LOG_SETUP();
+namespace miniSQL {
+
+SETUP_LOGGER(SQLScanner);
 
 SQLScanner::SQLScanner(InputHandler* inputHandler) {
     input = inputHandler;
@@ -80,7 +82,7 @@ void SQLScanner::scan() {
         nowChar = input->next();
     }
     else {
-        MINISQL_LOG(ERROR, "unknown token %c at line %d char %d", 
+        MINISQL_LOG_ERROR("unknown token %c at line %d char %d", 
                     nowChar, input->GetLineNum(), input->GetCharNum());
         token = ERROR;
         nowChar = input->next();
@@ -228,4 +230,7 @@ bool SQLScanner::isNegativeOrDigitsNow() const {
 
 bool SQLScanner::isEndOfInputNow() const {
     return nowChar == -1;
+}
+
+
 }

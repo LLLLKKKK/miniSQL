@@ -1,6 +1,8 @@
 #include "TokenAccepter.hpp"
 #include <string>
 
+namespace miniSQL {
+
 int TokenAccepter::reserveSpace = 30;
 
 TokenAccepter::TokenAccepter() {
@@ -61,4 +63,6 @@ Token TokenAccepter::accept() {
         }
     }
     return NULLTOKEN;
+}
+
 }

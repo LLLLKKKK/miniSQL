@@ -2,9 +2,12 @@
 #ifndef INPUTHANDLER_HPP
 #define INPUTHANDLER_HPP
 
+
 #include <string>
 #include <istream>
 #include "Logger.hpp"
+
+namespace miniSQL {
 
 class InputHandler {
 public:
@@ -22,10 +25,14 @@ private:
     std::string lineBuffer;
     int charNum;
     int lineNum;
-    LOGGER_PTR logger;
     std::istream* stream;
 
     static int lineReserveSize;
+
+private:
+    DECLARE_LOGGER();
 };
+
+}
 
 #endif

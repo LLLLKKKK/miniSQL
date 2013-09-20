@@ -1,6 +1,8 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
+namespace miniSQL {
+
 enum Token {
 
     // sql keywords
@@ -54,5 +56,7 @@ enum Token {
 };
 
 extern const char* tokenStr[];
+
+}
 
 #endif

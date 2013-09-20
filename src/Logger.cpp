@@ -4,6 +4,8 @@
 
 using std::string;
 
+namespace miniSQL {
+
 std::map<string, LoggerPtr > Logger::loggers;
 const int Logger::MAX_MESSAGE_SIZE = 1024;
 
@@ -12,12 +14,12 @@ const char* Logger::level_str_[] = {
 };
 
 
-LOGGER_PTR Logger::getLogger(const string& name) {
+LoggerPtr Logger::getLogger(const string& name) {
     auto it = loggers.find(name);
-    LOGGER_PTR logger;
+    LoggerPtr logger;
     
     if (it == loggers.end()) {
-        logger = LOGGER_PTR(new Logger(name));
+        logger = LoggerPtr(new Logger(name));
         loggers[name] = logger;
     }
     else {
@@ -60,4 +62,6 @@ void Logger::log(LogLevel level, const char* file, const int line, const char* f
     vprintf(format, args);
     va_end(args);
     putchar('\n');
+}
+
 }

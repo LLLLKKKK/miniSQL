@@ -3,10 +3,12 @@
 #include <iostream>
 #include <cassert>
 #include "SQLParser.hpp"
-#include "token.hpp"
 #include "SQLScanner.hpp"
+#include "token.hpp"
 
-SETUP_LOG(SQLParser);
+namespace miniSQL {
+
+SETUP_LOGGER(SQLParser);
 
 SQLParser::SQLParser(SQLScanner* scanner) {
     this->error_ = false;
@@ -27,7 +29,7 @@ void SQLParser::expect(const Token token) {
 }
 
 void SQLParser::syntaxError(const Token token, const char* description) {
-    MINISQL_LOG(ERROR, "At line %d:%d, %s %s", scanner->getLineNum(), scanner->getCharNum(), 
+    MINISQL_LOG_ERROR("At line %d:%d, %s %s", scanner->getLineNum(), scanner->getCharNum(), 
                 tokenStr[token], description); 
 
     error_ = true;
@@ -364,4 +366,6 @@ PARSENODE_PTR SQLParser::parseChar() {
     PARSENODE_PTR node(new CharNode(std::string(scanner->getTokenBuffer())));
     readToken();
     return node;
+}
+
 }

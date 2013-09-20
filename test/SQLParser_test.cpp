@@ -14,6 +14,7 @@
 
 using std::cout;
 using namespace boost::unit_test;
+using namespace miniSQL;
 
 BOOST_AUTO_TEST_SUITE ( parser_test_suite )
 

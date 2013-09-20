@@ -1,5 +1,9 @@
 #include "InputHandler.hpp"
 
+namespace miniSQL {
+
+SETUP_LOGGER(InputHandler);
+
 int InputHandler::lineReserveSize = 200;
 
 InputHandler::InputHandler(std::istream* stream) {
@@ -7,7 +11,7 @@ InputHandler::InputHandler(std::istream* stream) {
 
     this->stream = stream;   
     if (!stream->good()) {
-        LOG_ERROR(logger, "Bad stream %s open failed!");
+        MINISQL_LOG_ERROR("Bad stream %s open failed!");
         charNum = -1;
         lineNum = -1;
     }
@@ -34,4 +38,6 @@ char InputHandler::next() {
     }
 
     return lineBuffer[charNum++];
+}
+
 }

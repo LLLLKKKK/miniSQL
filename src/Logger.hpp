@@ -6,11 +6,12 @@
 #include <memory>
 #include <string>
 
-#define LoggerPtr std::shared_ptr<Logger>
+namespace miniSQL {
 
-class Logger
-{
+class Logger;
+typedef std::shared_ptr<Logger> LoggerPtr;
 
+class Logger {
 private:
     Logger(const std::string&);
 
@@ -21,18 +22,17 @@ private:
     static const int MAX_MESSAGE_SIZE;
 
     std::string name;
-    
+
 public:
     enum LogLevel {
         ERROR, WARN, INFO, DEBUG, TRACE
     };
     
 public:
-    static LOGGER_PTR getLogger(const std::string& name);
+    static LoggerPtr getLogger(const std::string& name);
     void log(LogLevel level, const char* format, ... );
     void log(LogLevel level, const char* file, const int line, const char* func,
              const char* format, ... );
-
 };
 
 
@@ -64,16 +64,33 @@ public:
 #define LOG_ERROR
 #define LOG_WARN
 #define LOG_INFO
-#define TRACE
-#define DEBUG
+#define LOG_TRACE
+#define LOG_DEBUG
 
 #endif
 
-#define DECLARE_LOG() static LoggerPtr _logger
-#define SETUP_LOG(c)                                    \
-    static LoggerPtr c::_logger = Logger::getLogger(#c)
+#define DECLARE_LOGGER() static LoggerPtr _logger
+#define SETUP_LOGGER(c)                                    \
+    LoggerPtr c::_logger = Logger::getLogger(#c)
 
 #define MINISQL_LOG(level, format, args...)     \
     LOG(_logger, level, format, ##args)
+
+#define MINISQL_LOG_ERROR(format, args...)      \
+    LOG_ERROR(_logger, format, ##args)
+
+#define MINISQL_LOG_WARN(format, args...)      \
+    LOG_WARN(_logger, format, ##args)
+
+#define MINISQL_LOG_INFO(format, args...)      \
+    LOG_INFO(_logger, format, ##args)
+
+#define MINISQL_LOG_DEBUG(format, args...)      \
+    LOG_DEBUG(_logger, format, ##args)
+
+#define MINISQL_LOG_TRACE(format, args...)      \
+    LOG_TRACE(_logger, format, ##args)
+
+}
 
 #endif

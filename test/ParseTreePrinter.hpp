@@ -4,6 +4,8 @@
 
 #include "../src/SQLParser.hpp"
 
+using namespace miniSQL;
+
 class ParseTreePrinter {
 public:
     static void print(std::stringstream& stream, const PARSENODE_PTR node);
