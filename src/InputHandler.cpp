@@ -2,7 +2,6 @@
 
 namespace miniSQL {
 
-SETUP_LOGGER(InputHandler);
 
 int InputHandler::lineReserveSize = 200;
 

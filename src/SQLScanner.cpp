@@ -7,8 +7,6 @@
 
 namespace miniSQL {
 
-SETUP_LOGGER(SQLScanner);
-
 SQLScanner::SQLScanner(InputHandler* inputHandler) {
     input = inputHandler;
     tokenAccepter = new TokenAccepter;

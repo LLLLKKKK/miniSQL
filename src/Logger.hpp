@@ -69,8 +69,6 @@ public:
 #endif
 
 #define DECLARE_LOGGER(c) LoggerPtr _logger = Logger::getLogger(std::string(#c))
-#define SETUP_LOGGER(c)                                    \
-//    LoggerPtr c::_logger = Logger::getLogger(std::string(#c))
 
 #define MINISQL_LOG(level, format, args...)     \
     LOG(_logger, level, format, ##args)

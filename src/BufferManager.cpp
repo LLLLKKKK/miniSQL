@@ -10,8 +10,6 @@
 
 namespace miniSQL {
 
-SETUP_LOGGER(BufferManager);
-
 BufferManager::BufferManager(LRUCache<PageID, PagePtr, PageGetSizeCallback>* cache, 
                              FixedSizeChunkAllocator* allocator,
                              const std::string& primaryDataFile) 

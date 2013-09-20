@@ -8,7 +8,6 @@
 
 namespace miniSQL {
 
-SETUP_LOGGER(SQLParser);
 
 SQLParser::SQLParser(SQLScanner* scanner) {
     this->error_ = false;
