@@ -2,192 +2,147 @@
 #ifndef BPLUSTREE_H
 #define BPLUSTREE_H
 
-template <class T, unsigned int degree>
-class BPlusTree {
+#include <pair>
 
-public:
+template<class T>
+struct Node {
+    int n_keys;
+    int n_ptrs;
+    bool is_leaf;
 
-    struct TreeNode {
-        int n_keys;
-        int n_ptrs;
-        bool is_leaf;
-
-        T keys[degree - 1];
-        void* ptrs[degree];
+    T* keys;
+    void** ptrs;
         
-        TreeNode():is_leaf(true), n_keys(0) {}
-    };
+    Node():is_leaf(true), n_keys(0) {}
+};
 
-private:
-    TreeNode* root_;
+template<class T>
+class NodeAllocator {
+
+    // get a node via id from nodes allocated
+    // lock the mem of node
+    virtual Node<T>* getNode(void* id) = 0;
     
+    // write back node 
+    // unlock the mem of node
+    virtual void writebackNode(Node<T>* node) = 0;
+
+    // create a new node, and return the id
+    virtual Node<T>* createNode() = 0;
+
+};
+
+
+template <class T, class NodeAllocator, unsigned int degree>
+class BPlusTree {
 public:
     BPlusTree() {
     }
     
     ~BPlusTree() {
+        if (root_) {
+            allocator.writeback(root_);
+        }
     }
     
-    void Create() {
-        root_ = new TreeNode;
+    void create() {
+        auto id = allocator.createNode();
+        root_ = allocator.getNode();
     }
 
-    void* find(T value) {
-        auto c = root_;
-
-        while ( ! c->is_leaf) {
-            int i = 0;
-            // find the smallest number i such that value <= c.keys[i]
-            while (i < c->n_keys && c.keys[i] < value) i++;
-            // no such key
-            if (i == c->n_keys) {
-                // set c to the last non-null pointer in the node
-                c = c.ptrs[n_ptrs - 1];
-            }
-            // there's such i
-            else {
-                c = c.ptrs[i];
-            }
+    std::pair<Node<T>*, int> search(Node<T>* node, T key) {
+        int i = 1;
+        while (i <= node->n_ptrs && key > node->keys[i]) i++;
+        if (i <= node->n_ptrs && key == node->keys[i]) {
+            return std::make_pair(node, i);
         }
-
-        // now c is a leaf node
-        int i = 0;
-        while (i < c->n_keys && c.keys[i] < value) i++;
-        if (c.keys[i] == value) {
-            return c.ptrs[i];
+        if (node->is_leaf) {
+            return make_pair<Node<T>*, int>(nullptr, -1);
         }
         else {
-            return NULL;
+            auto nextNode = allocator.getNode();
+            auto ret = search(nextNode, key);
+            allocator.writeback(nextNode);
+            return ret;
         }
     }
 
     void Insert(T key, void* ptr) {
-        auto l = find(key);
+        auto r = root_;
         if (r->n_keys == degree) {
-
+            auto s = allocator.createNode();
+            root_ = s;
+            s->is_leaf = false;
+            s->n_keys = 0;
+            s->ptrs[0] = r;
+            splitChild(s, 1, r);
+            insertNonFull(s, key);
         }
         else {
-
+            insertNonFull(r, k);
         }
     }
 
-    void InsertNonfull(T key, void* ptr) {
-
+    void InsertNonFull(T key, Node<T>* nodex) {
+        int i = nodex->n_ptrs - 1;
+        if (nodex->is_leaf) {
+            while (i >= 0 && key < nodex->keys[i]) {
+                nodex->keys[i + 1] = nodex[i];
+                i--;
+            }
+            nodex->keys[i + 1] = k;
+        }
+        else {
+            while (i >= 0 && key < nodex->keys[i]) i--;
+            auto node = allocator.getNode(nodex->ptrs[i]);
+            if (node->n_ptrs == degree) {
+                splitChild(nodex, i, node);
+                if (key > nodex->keys[i]) {
+                    i++;
+                }
+            }
+            insertNonFull(node, key);
+        }
     }
 
-    void SplitChild(TreeNode* x, int pos, TreeNode* y) {
+    void splitChild(Node<T>* nodex, int pos, Node<T>* nodey) {
 
-        auto z = new TreeNode;
-        z->is_leaf = z->is_leaf;
-        z->n_keys = degree / 2 - 1;
+        auto znode = allocator.createNode();
+        znode->is_leaf = znode->is_leaf;
+        znode->n_keys = degree / 2 - 1;
 
-        for (auto j = 1; j <= degree / 2 - 1; j++) {
-            z->keys[j] = y->keys[j + degree / 2];
+        for (int j = 1; j <= degree / 2 - 1; j++) {
+            znode->keys[j] = ynode->keys[j + degree / 2];
         }
-        if ( ! y->is_leaf) {
-            for (auto j = 1; j <= degree / 2; j++) {
-                z->pointers[j] = y->pointers[j + degree / 2];
+        if ( ! ynode->is_leaf) {
+            for (int j = 1; j <= degree / 2; j++) {
+                znode->pointers[j] = ynode->pointers[j + degree / 2];
             }
         }
 
-        y->n_keys = degree / 2 - 1;
-        for (auto j = x->n_keys + 1; j >= pos + 1; j--) {
-            x->ptrs[j + 1]; = x->ptrs[j];
+        ynode->n_keys = degree / 2 - 1;
+        for (int j = xnode->n_keys + 1; j >= pos + 1; j--) {
+            xnode->ptrs[j + 1]; = xnode->ptrs[j];
         }
-        x->ptrs[pos] = z
-                       for (auto j = x->n_keys; j >= pos; j--) {
-                           x->keys[j + 1] = x->keys[j];
+        xnode->ptrs[pos] = z
+                       for (auto j = xnode->n_keys; j >= pos; j--) {
+                           xnode->keys[j + 1] = xnode->keys[j];
                        }
-        x->keys[pos] = y->keys[degree / 2];
-        x->n_keys++;
+        xnode->keys[pos] = ynode->keys[degree / 2];
+        xnode->n_keys++;
+
+        allocator.writeback(nodez);
+        allocator.writeback(nodey);
+        allocator.writeback(nodex);
     }
 
-    // void Insert(T key, void* ptr) {
-    //   TreeNode* node;
 
-    //   // if the tree is empty
-    //   if (NULL == root_) {
-    //     root_ = new TreeNode;
-    //     node = root_;
-    //   }
-    //   else {
-    //     // findt the leaf node that should contain key K
-    //   }
-
-    //   if (node->n_keys < degree - 1) {
-    //     InsertInLeaf(node, key, ptr);
-    //   }
-    //   // node has n - 1 key values already, split it
-    //   else {
-    //     auto new_node = new TreeNode;
-    //     for (int i = 0; i < )
-    //   }
-    // }
-
-    // // pre-condition : the node must NOT be FULL
-    // void InsertInLeaf(TreeNode* node, T key, void * ptr) {
-
-    //   // if the key less than the first key
-    //   if (key < node->keys[0]) {
-      
-    //     // move all the key and ptrs forward
-    //     for (int i = node->n_keys - 1; i > 0; i--) {
-    //       node->keys[i] = node->keys[i - 1];
-    //     }
-    //     for (int i = node->n_ptrs - 1; i > 0; i--) {
-    //       node->ptrs[i] = node->ptrs[i - 1];
-    //     }
-
-    //     // insert the key in front
-    //     node->ptrs[0] = ptr;
-    //     node->keys[0] = key;
-    //   }
-    //   else {
-
-    //     // insert the key into the node
-    //     int i = 0;
-    //     while (node->keys[i] <= key) i++;
-
-    //     // now i is just after the highest value in node that is less than key
-    //     // insert key and ptr
-    //     for (int j = node->n_keys - 1; j > i; j--) {
-    //       node->keys[j] = node->keys[j - 1];
-    //     }
-    //     for (int j = node->n_ptrs - 1; j > i; j--) {
-    //       node->ptrs[j] = node->ptrs[j - 1];
-    //     }
-    //     node->ptrs[i] = ptr;
-    //     node->keys[i] = key;
-    //   }
-    // }
-
-    // // pre-condition : the node must NOT be FULL
-    // void InsertInParent(TreeNode* node, T key, void* ptr) {
-    //   if (node == root_) {
-    //     auto 
-    //   }
-    // }
-    // const TreeNode* Search(const TreeNode* node, T value) {
-    //   auto i = 1;
-    //   while (i <= node->is_leaf && value > node->keys[i]) {
-    //     i++;
-    //   }
-
-    //   if (i <= node->is_leaf && value == node->keys[i]) {
-    //     return node, i
-    //   }
-
-    //   if (node->is_leaf) {
-    //     return NULL;
-    //   }
-    //   else {
-    //     Search(node->pointers[i], value);
-    //   }
-    // }
-
-
+private:
+    Node* root_;
+    NodeAllocator<T> allocator;
 
 };
 
 #endif
 
+n

@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#define LOGGER_PTR std::shared_ptr<Logger>
+#define LoggerPtr std::shared_ptr<Logger>
 
 class Logger
 {
@@ -16,7 +16,7 @@ private:
 
 private:
     void printfCurTime();
-    static std::map<std::string, LOGGER_PTR > loggers;
+    static std::map<std::string, LoggerPtr > loggers;
     static const char*level_str_ [];
     static const int MAX_MESSAGE_SIZE;
 
@@ -41,22 +41,22 @@ public:
 #ifndef _NO_LOG_
 
 #define LOG(logger, level, format, args...)                             \
-    logger->log(level, __FILE__, __LINE__, __FUNCTION__, format, ##args);
+    logger->log(level, __FILE__, __LINE__, __FUNCTION__, format, ##args)
 
-#define LOG_ERROR(logger, format, args...) \
-    logger->log(Logger::ERROR, __FILE__, __LINE__, __FUNCTION__, format, ##args);
+#define LOG_ERROR(logger, format, args...)                              \
+    logger->log(Logger::ERROR, __FILE__, __LINE__, __FUNCTION__, format, ##args)
 
 #define LOG_WARN(logger, format, args...) \
-    logger->log(Logger::WARN, __FILE__, __LINE__, __FUNCTION__, format, ##args);
+    logger->log(Logger::WARN, __FILE__, __LINE__, __FUNCTION__, format, ##args)
 
 #define LOG_INFO(logger, format, args...) \
-    logger->log(Logger::INFO, __FILE__, __LINE__, __FUNCTION__, format, ##args);
+    logger->log(Logger::INFO, __FILE__, __LINE__, __FUNCTION__, format, ##args)
 
 #define LOG_TRACE(logger, format, args...) \
-    logger->log(Logger::TRACE, __FILE__, __LINE__, __FUNCTION__, format, ##args);
+    logger->log(Logger::TRACE, __FILE__, __LINE__, __FUNCTION__, format, ##args)
 
 #define LOG_DEBUG(logger, format, args...) \
-    logger->log(Logger::DEBUG, __FILE__, __LINE__, __FUNCTION__, format, ##args);
+    logger->log(Logger::DEBUG, __FILE__, __LINE__, __FUNCTION__, format, ##args)
 
 #else
 
@@ -68,5 +68,12 @@ public:
 #define DEBUG
 
 #endif
+
+#define DECLARE_LOG() static LoggerPtr _logger
+#define SETUP_LOG(c)                                    \
+    static LoggerPtr c::_logger = Logger::getLogger(#c)
+
+#define MINISQL_LOG(level, format, args...)     \
+    LOG(_logger, level, format, ##args)
 
 #endif

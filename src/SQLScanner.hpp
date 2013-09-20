@@ -27,7 +27,6 @@ private:
     string tokenBuffer;
     InputHandler *input;
     TokenAccepter* tokenAccepter;
-    LOGGER_PTR logger;
   
     Token token;
     char nowChar;  
@@ -49,7 +48,10 @@ private:
     void scanChar();
     void scanNumber();
     void scanIdentifier();
-    void scanOperator();  
+    void scanOperator();
+
+private:
+    DECLARE_LOG();
 };
 
 #endif

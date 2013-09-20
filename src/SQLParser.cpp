@@ -6,10 +6,11 @@
 #include "token.hpp"
 #include "SQLScanner.hpp"
 
+SETUP_LOG(SQLParser);
+
 SQLParser::SQLParser(SQLScanner* scanner) {
     this->error_ = false;
     this->scanner = scanner;
-    this->logger = Logger::getLogger("SQLParser");
     assert(scanner != nullptr);
 }
 
@@ -26,8 +27,8 @@ void SQLParser::expect(const Token token) {
 }
 
 void SQLParser::syntaxError(const Token token, const char* description) {
-    LOG_ERROR(logger, "At line %d:%d, %s %s", scanner->getLineNum(), scanner->getCharNum(), 
-              tokenStr[token], description); 
+    MINISQL_LOG(ERROR, "At line %d:%d, %s %s", scanner->getLineNum(), scanner->getCharNum(), 
+                tokenStr[token], description); 
 
     error_ = true;
 }

@@ -4,7 +4,7 @@
 
 #include <map>
 #include <string>
-#include "LRUCache.h"
+#include "LRUCache.hpp"
 
 class FixedSizeChunkAllocator;
 class BufferManager;
@@ -18,6 +18,7 @@ typedef uint32_t PageID;
 // bits [7..0]  : FileID ( Filename)
 typedef uint16_t FileID;
 
+const uint64_t PAGE_SIZE = 8 * 1024 * 1024;
 #define MAX_FILEID 0xFFFF
 #define MAX_PAGEID 0xFFFFFFFF
 
@@ -34,6 +35,12 @@ struct Page {
         : data(data_), id(id_),  manager(manager_) { }
     ~Page() {
         manager->unpinPage(id);
+    }
+};
+
+struct PageGetSizeCallback {
+    uint64_t operator() (PagePtr page) {
+        return PAGE_SIZE;
     }
 };
 
@@ -103,7 +110,7 @@ typedef std::shared_ptr<DbFile> DbFilePtr;
 class BufferManager {
 
 public:
-    BufferManager(LRUCache<PageID, PagePtr>* cache, 
+    BufferManager(LRUCache<PageID, PagePtr, PageGetSizeCallback>* cache, 
                   FixedSizeChunkAllocator* allocator, 
                   const std::string& primaryDataFile);
     ~BufferManager();

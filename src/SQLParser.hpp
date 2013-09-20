@@ -5,6 +5,7 @@
 #include <memory>
 #include <list>
 #include <string>
+#include "common.h"
 #include "token.hpp"
 #include "Logger.hpp"
 
@@ -43,6 +44,8 @@ struct IdentifierNode : public ParseNode {
 class SQLParser {
 public:
     SQLParser(SQLScanner* scanner);
+    
+    DISALLOW_COPY_AND_ASSGIN(SQLParser);
     
 public:
     std::list<PARSENODE_PTR> parseSQL();
@@ -93,9 +96,11 @@ private:
     Token prevReading;
 
     SQLScanner* scanner;
-    LOGGER_PTR logger;
 
     bool error_;
+
+private:
+    DECALRE_LOG();
 };
 
 #endif

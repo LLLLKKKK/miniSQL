@@ -4,7 +4,7 @@
 
 using std::string;
 
-std::map<string, LOGGER_PTR > Logger::loggers;
+std::map<string, LoggerPtr > Logger::loggers;
 const int Logger::MAX_MESSAGE_SIZE = 1024;
 
 const char* Logger::level_str_[] = {

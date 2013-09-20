@@ -5,12 +5,12 @@
 #include "TokenAccepter.hpp"
 #include "InputHandler.hpp"
 
+LOG_SETUP();
+
 SQLScanner::SQLScanner(InputHandler* inputHandler) {
     input = inputHandler;
     tokenAccepter = new TokenAccepter;
     nowChar = input->next();
-    
-    logger = Logger::getLogger("SQL Scanner");
     
     for (int i = FIRST_TOKEN; i <= LAST_TOKEN; i++) {
         tokenAccepter->add(tokenStr[i], (Token)i);
@@ -80,8 +80,8 @@ void SQLScanner::scan() {
         nowChar = input->next();
     }
     else {
-        LOG_ERROR(logger, "unknown token %c at line %d char %d", 
-                  nowChar, input->GetLineNum(), input->GetCharNum());
+        MINISQL_LOG(ERROR, "unknown token %c at line %d char %d", 
+                    nowChar, input->GetLineNum(), input->GetCharNum());
         token = ERROR;
         nowChar = input->next();
     }
@@ -188,8 +188,7 @@ void SQLScanner::scanOperator() {
 
 void SQLScanner::appendSubsequentAlpha() {
     nextChar();
-    while (isalpha(nowChar))
-    { 
+    while (isalpha(nowChar)) {
         tokenBuffer.push_back(nowChar);
         nextChar();
     }
@@ -197,8 +196,7 @@ void SQLScanner::appendSubsequentAlpha() {
 
 void SQLScanner::appendSubsequentDigits() {
     nextChar();
-    while (isdigit(nowChar))
-    {
+    while (isdigit(nowChar)) {
         tokenBuffer.push_back(nowChar);
         nextChar();
     }
@@ -231,8 +229,3 @@ bool SQLScanner::isNegativeOrDigitsNow() const {
 bool SQLScanner::isEndOfInputNow() const {
     return nowChar == -1;
 }
-
-
-
-
-

@@ -81,8 +81,7 @@ void initNormalPage(PagePtr page) {
     PageHeader* header = reinterpret_cast<SecondaryFileHeaderPage*>
                          (page->get());
     strcpy(header->header_string, "MiniSQL Header");
-    strcpy(header->meta_version, "LK 0.0.1");
-    
+    strcpy(header->meta_version, "LK 0.0.1");    
 }
 
 DbFilePtr BufferManager::loadDbFile(const std::string& filename) {
