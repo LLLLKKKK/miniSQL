@@ -22,12 +22,11 @@ public:
     void invalidate(const std::vector<K>& keyList);
     bool invalidate(const K& key);
 
-    bool put(const K& key, const V& value);
-    bool get(const K& key, V& value);
+    bool put(const K& key, const V& value, bool pin = false);
+    bool get(const K& key, V& value, bool pin = false);
     bool update(const K& key, const V& newValue);
     bool isInCache(const K& key);
 
-    bool getAndPin(const K& key, V& value);
     bool unpin(const K& key);
 
     int64_t getCacheSizeUsed() const { return _cacheSizeUsed; }
@@ -122,7 +121,7 @@ bool LRUCache<K, V, GetSizeCallback>::require(int64_t requireSize) {
 
 
 template<class K, class V, class GetSizeCallback>
-bool LRUCache<K, V, GetSizeCallback>::put(const K& key, const V& value) {
+bool LRUCache<K, V, GetSizeCallback>::put(const K& key, const V& value, bool pin) {
     int64_t valueSize = _GetSizeCallback(value);
 
     // if cacheSize is not enough now
@@ -138,6 +137,10 @@ bool LRUCache<K, V, GetSizeCallback>::put(const K& key, const V& value) {
     auto res = _cacheMap.emplace(key, newValue);
     bool succ = res.second;
     auto mapIter = res.first;
+
+    if (pin) {
+        mapIter->second.pin = true;
+    }
 
     // the new value is inserted, no equivalent element exists
     if (succ) {
@@ -157,24 +160,6 @@ bool LRUCache<K, V, GetSizeCallback>::put(const K& key, const V& value) {
 }
 
 template<class K, class V, class GetSizeCallback>
-bool LRUCache<K, V, GetSizeCallback>::getAndPin(const K& key, V& value) {
-    _totalQueryTimes ++;
-
-    auto mapIter = _cacheMap.find(key);
-    if (mapIter != _cacheMap.end()) {
-        _accessQueue.splice(_accessQueue.end(), _accessQueue, mapIter->second.iter);
-        mapIter->second.pin = true;
-        value = mapIter->value;
-        return true;
-    }
-    else {
-        MINISQL_LOG_TRACE("key %s not exists, get failed!", 
-                    std::to_string(key).c_str());
-        return false;
-    }
-}
-
-template<class K, class V, class GetSizeCallback>
 bool LRUCache<K, V, GetSizeCallback>::unpin(const K& key) {
     auto mapIter = _cacheMap.find(key);
     if (mapIter != _cacheMap.end()) {
@@ -189,13 +174,16 @@ bool LRUCache<K, V, GetSizeCallback>::unpin(const K& key) {
 }
 
 template<class K, class V, class GetSizeCallback>
-bool LRUCache<K, V, GetSizeCallback>::get(const K& key, V& val) {
+bool LRUCache<K, V, GetSizeCallback>::get(const K& key, V& val, bool pin) {
     _totalQueryTimes ++;
 
     auto mapIter = _cacheMap.find(key);
     if (mapIter != _cacheMap.end()) {
         _accessQueue.splice(_accessQueue.end(), _accessQueue, mapIter->second.iter);
         val = mapIter->second.value;
+        if (pin) {
+            mapIter->second.pin = true;
+        }
         return true;
     }
     else {

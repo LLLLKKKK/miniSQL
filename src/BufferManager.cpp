@@ -8,7 +8,9 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-namespace miniSQL {
+namespace miniSQL { 
+
+FileID DbFile::_nextFileID;
 
 BufferManager::BufferManager(LRUCache<PageID, PagePtr, PageGetSizeCallback>* cache, 
                              FixedSizeChunkAllocator* allocator,
@@ -20,6 +22,13 @@ BufferManager::BufferManager(LRUCache<PageID, PagePtr, PageGetSizeCallback>* cac
 // well, just to make it easy
 // 1. 1st line: number of files
 // 2. then each line for a single file
+
+BufferManager::~BufferManager() {
+    serializePrimaryDataFile();
+    for (auto& page : _pageSet) {
+        _cache->invalidate(page);
+    }
+}
 
 bool BufferManager::serializePrimaryDataFile() {
     // seailize them
@@ -41,7 +50,7 @@ bool BufferManager::deserializePrimaryDataFileAndLoad() {
     std::ifstream ifs;
     ifs.open(_primaryDataFile.c_str(), std::ifstream::in);
     if (! ifs.good() ) {
-        MINISQL_LOG_ERROR( "Open file %s for reading failed!", _primaryDataFile.c_str());
+        MINISQL_LOG_ERROR( "open file %s for reading failed!", _primaryDataFile.c_str());
         return false;
     }
     // open Dbfile, read header page
@@ -51,20 +60,71 @@ bool BufferManager::deserializePrimaryDataFileAndLoad() {
         std::string filename;
         ifs >> filename;
         DbFilePtr file = loadDbFile(filename);
+        if ( ! file) {
+            MINISQL_LOG_ERROR( "load db file %s failed!", filename.c_str());
+            return false;
+        }
         _fileMap.emplace(file->id, file);
     }
 
     return true;
 }
 
+DbFilePtr BufferManager::loadDbFile(const std::string& filename) {
+    int fd = open(filename.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (fd < 0) {
+        MINISQL_LOG_ERROR( "Can't open file %s!", filename.c_str());
+        return nullptr;
+    }
+
+    DbFilePtr file(new DbFile);
+    file->fd = fd;
+    file->filename = filename;
+
+    PagePtr headerPage = mapPage(file, PageID(0));
+
+    SecondaryFileHeaderPage* header = reinterpret_cast<SecondaryFileHeaderPage*>
+                                      (file->headerPage.get());
+
+    file->pageSize = _pageSize;
+    file->headerPage = headerPage;
+    file->size = header->file_size;
+    file->id = header->my_id;
+
+    _cache->put(header->my_id, headerPage, true);
+    _pageSet.insert(header->my_id);
+               
+    return file;
+}
+
+
+bool BufferManager::init() {
+    if ( ! deserializePrimaryDataFileAndLoad()) {
+        MINISQL_LOG_ERROR( "Deserialize primary data file %s failed!",
+            _primaryDataFile.c_str());
+        return false;
+    }
+
+    if (_fileMap.size() == 0) {
+        FileID fileID = DbFile::generateFileID();
+        DbFilePtr file = createDbFile(std::to_string(fileID));
+        if ( ! file) {
+            MINISQL_LOG_ERROR( "Create DbFile %u failed!", fileID);
+            return false;
+        }
+        _fileMap.emplace(fileID, file);
+    }
+    return true;
+}
+
 DbFilePtr BufferManager::createDbFile(const std::string& filename) {
     if (ENOENT != access(filename.c_str(), O_RDWR) ) {
-        MINISQL_LOG_ERROR( "Test access file %s failed!", filename.c_str());
+        MINISQL_LOG_ERROR( "test access file %s failed!", filename.c_str());
         return nullptr;
     }
     DbFilePtr file = loadDbFile(filename);
     if ( ! file) {
-        MINISQL_LOG_ERROR( "Create Db file %s fiailed!", filename.c_str());
+        MINISQL_LOG_ERROR( "create Db file %s failed!", filename.c_str());
         return nullptr;
     }
     initDbFileHeaderPage(file->headerPage);
@@ -80,8 +140,8 @@ void BufferManager::initDbFileHeaderPage(PagePtr page) {
     strcpy(header->meta_version, "LK 0.0.1");
     header->page_start = 1;
     header->page_end = 1;
-    header->page_slot_array_start = reinterpret_cast<PageID*>(
-            reinterpret_cast<char*>(header) + PAGE_SIZE);
+    header->page_slot_array_start = reinterpret_cast<PageID*>
+                                    (reinterpret_cast<char*>(header) + PAGE_SIZE);
     header->page_slot_array_end = header->page_slot_array_end;
     
 }
@@ -104,80 +164,28 @@ void BufferManager::initNormalPage(PagePtr page) {
     header->record_slot_array_end = header->record_start;
 }
 
-DbFilePtr BufferManager::loadDbFile(const std::string& filename) {
-    int fd = open(filename.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    if (fd < 0) {
-        MINISQL_LOG_ERROR( "Can't open file %s!", filename.c_str());
-        return nullptr;
-    }
-    DbFilePtr file(new DbFile);
-    file->fd = fd;
-    file->filename = filename;
-    file->headerPage = getPage(PageID(0));
-    SecondaryFileHeaderPage* header = reinterpret_cast<SecondaryFileHeaderPage*>
-                                      (file->headerPage.get());
-    file->size = header->file_size;
-    file->id = header->my_id;
-
-    return file;
-}
-
-
-bool BufferManager::init() {
-    if ( ! deserializePrimaryDataFileAndLoad()) {
-        MINISQL_LOG_ERROR( "Deserialize primary data file %s failed!",
-            _primaryDataFile.c_str());
-        return false;
-    }
-
-    if (_fileMap.size() == 0) {
-        FileID fileID = generateFileID();
-        DbFilePtr file = createDbFile(std::to_string(fileID));
-        if ( ! file) {
-            MINISQL_LOG_ERROR( "Create DbFile %u failed!", fileID);
-            return false;
-        }
-        _fileMap.emplace(fileID, file);
-    }
-    return true;
-}
-
-BufferManager::~BufferManager() {
-    serializePrimaryDataFile();
-    // for (auto& page : _pageMap) {
-    //     _cache.invalidate(page->first);
-    // }
-}
-
 // try to allocate it in the same file
 PageID BufferManager::createPage(PageID pageID) {
-    FileID fileID = getFileID(pageID);
+    FileID fileID = DbFile::getFileID(pageID);
     auto it = _fileMap.find(fileID);
 
     if (it == _fileMap.end()) {
-        MINISQL_LOG_ERROR( "");
+        MINISQL_LOG_ERROR("invalid FileID %s for page %s!", 
+                          std::to_string(fileID).c_str(), std::to_string(pageID).c_str());
         return INVALID_PAGEID;
     }
 
     auto file = it->second;
     if (_maxDbFileSize - _pageSize > file->size) {
-        void* data = _allocator->allocate(_pageSize);
-        uint32_t prevSize = file->size;
-        void* ret =  ::mmap(data, _pageSize, PROT_READ | PROT_WRITE, 
-                            MAP_PRIVATE, file->fd, prevSize);
-        if (ret == MAP_FAILED) {
-            MINISQL_LOG_ERROR( "can't mmap file %s !", file->filename.c_str());
-            _allocator->free(data);
+        PageID id = file->generatePageID();
+        PagePtr page = mapPage(file, id);
+        if ( ! page) {
+            MINISQL_LOG_ERROR("map page %s failed!", std::to_string(pageID).c_str());
             return INVALID_PAGEID;
         }
-        PageID id = generatePageID(file);
-        PagePtr page(new Page {data, pageID, [this](Page* page) {
-                        this->unmapPage(page);
-                    }});        
         file->size += _pageSize;
-
-//        _pageMap.emplace(id, page);
         _cache->put(id, page);
+        _pageSet.insert(id);
 
         return id;
     }
@@ -194,40 +202,43 @@ PagePtr BufferManager::getPage(PageID pageID) {
         return page;
     }
 
-    page = mapPage(pageID);
+    FileID fileID = DbFile::getFileID(pageID);
+    auto it = _fileMap.find(fileID);
+
+    if (it == _fileMap.end()) {
+        MINISQL_LOG_ERROR( "invalid pageID %u, can't find file!", pageID);
+        return nullptr;
+    }
+
+    DbFilePtr file = it->second;
+    if (! file->validate(pageID)) {
+        MINISQL_LOG_ERROR( "invalid pageID %u, can't find page!", pageID);
+        return nullptr;
+    }
+
+    page = mapPage(file, pageID);
     if ( ! page) {
         MINISQL_LOG_ERROR( "Map page %u failed!", pageID);
         return nullptr;
     }
+
     _cache->put(pageID, page);
+    _pageSet.insert(pageID);
 
     return page;
 }
 
 
-PagePtr BufferManager::mapPage(PageID pageID) {
-    FileID fileID = getFileID(pageID);
-
-    auto it = _fileMap.find(fileID);
-    if (it == _fileMap.end()) {
-        MINISQL_LOG_ERROR( "Invalid pageID %u, can't find file!", pageID);
-        return nullptr;
-    }
-
-    DbFilePtr file = it->second;
-    if (! validate(pageID, file)) {
-        MINISQL_LOG_ERROR( "Invalid pageID %u, can't find page!", pageID);
-        return nullptr;
-    }
+PagePtr BufferManager::mapPage(DbFilePtr file, PageID pageID) {
 
     void* data = _allocator->allocate(_pageSize);
     void* ret =  ::mmap(data, _pageSize, PROT_READ | PROT_WRITE, 
-                        MAP_PRIVATE, file->fd, getOffset(file, pageID));
+                        MAP_PRIVATE, file->fd, file->getOffset(pageID));
 
     if (ret == MAP_FAILED) {
         MINISQL_LOG_ERROR( "can't mmap file %s !", file->filename.c_str());
         _allocator->free(data);
-        return INVALID_PAGEID;
+        return nullptr;
     }
 
     return PagePtr(new Page {data, pageID, [this](Page* page) {
@@ -245,16 +256,16 @@ bool BufferManager::unmapPage(Page* page) {
 }
 
 bool BufferManager::deletePage(PageID pageID) {
-    FileID fileID = getFileID(pageID);
+    FileID fileID = DbFile::getFileID(pageID);
     auto it = _fileMap.find(fileID);
     if (it == _fileMap.end()) {
-        MINISQL_LOG_ERROR( "Invalid pageID %u, can't find file!", pageID);
+        MINISQL_LOG_ERROR( "invalid pageID %u, can't find file!", pageID);
         return false;
     }
 
     DbFilePtr file = it->second;
-    if (! validate(pageID, file)) {
-        MINISQL_LOG_ERROR( "Invalid pageID %u, can't find page!", pageID);
+    if (! file->validate(pageID)) {
+        MINISQL_LOG_ERROR( "invalid pageID %u, can't find page!", pageID);
         return false;
     }
     

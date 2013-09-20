@@ -2,6 +2,7 @@
 #ifndef BUFFERMANAGER_HPP
 #define BUFFERMANAGER_HPP
 
+#include <set>
 #include <map>
 #include <string>
 #include <cassert>
@@ -38,7 +39,7 @@ private:
     DbFilePtr createDbFile(const std::string& filename);
     DbFilePtr loadDbFile(const std::string& filename);
 
-    PagePtr mapPage(PageID);
+    PagePtr mapPage(DbFilePtr, PageID);
     bool unmapPage(Page*);
 
     void initDbFileHeaderPage(PagePtr);
@@ -56,34 +57,11 @@ private:
     FixedSizeChunkAllocator *_allocator;
     const std::string _primaryDataFile;
 
+    std::set<PageID> _pageSet;
     std::map<FileID, DbFilePtr> _fileMap;
 //    std::map<FileID, DbFilePtr> _nonfullFileMap;
     
 //    std::set<std::string> _secondaryFilenames;
-
-    FileID _nextFileID;
-
-private:
-    FileID getFileID(PageID id) {
-        return static_cast<uint32_t>(id >> 16);
-    }
-    FileID generateFileID() {
-        if (_nextFileID < MAX_FILEID - 1) {
-            _nextFileID++;
-        }
-        return _nextFileID;
-    }
-    PageID generatePageID(DbFilePtr file) {
-        PageID id = (file->id << 16) + _pageSize;
-        assert(_maxDbFileSize - _pageSize > id);
-        return id;
-    }
-    bool validate(PageID id, DbFilePtr file) {
-        return getOffset(file, id) < file->size;
-    }
-    uint32_t getOffset(DbFilePtr file, PageID id) {
-        return (id & 0x0000FFFF) << _pageSize;
-    }
 
 private:
     DECLARE_LOGGER(c);
