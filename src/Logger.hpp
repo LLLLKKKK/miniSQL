@@ -17,11 +17,11 @@ private:
 
 private:
     void printfCurTime();
-    static std::map<std::string, LoggerPtr > loggers;
+    static std::map<std::string, LoggerPtr> loggers;
     static const char*level_str_ [];
     static const int MAX_MESSAGE_SIZE;
 
-    std::string name;
+    std::string _name;
 
 public:
     enum LogLevel {
@@ -34,7 +34,6 @@ public:
     void log(LogLevel level, const char* file, const int line, const char* func,
              const char* format, ... );
 };
-
 
 #define _NO_VERBOSE_
 
@@ -69,9 +68,9 @@ public:
 
 #endif
 
-#define DECLARE_LOGGER() static LoggerPtr _logger
+#define DECLARE_LOGGER(c) LoggerPtr _logger = Logger::getLogger(std::string(#c))
 #define SETUP_LOGGER(c)                                    \
-    LoggerPtr c::_logger = Logger::getLogger(#c)
+//    LoggerPtr c::_logger = Logger::getLogger(std::string(#c))
 
 #define MINISQL_LOG(level, format, args...)     \
     LOG(_logger, level, format, ##args)
@@ -90,6 +89,8 @@ public:
 
 #define MINISQL_LOG_TRACE(format, args...)      \
     LOG_TRACE(_logger, format, ##args)
+
+
 
 }
 

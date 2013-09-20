@@ -35,8 +35,8 @@ void SQLParser::syntaxError(const Token token, const char* description) {
     error_ = true;
 }
 
-std::list<PARSENODE_PTR > SQLParser::parseSQL() {
-    std::list<PARSENODE_PTR > statements;
+std::list<ParseNodePtr > SQLParser::parseSQL() {
+    std::list<ParseNodePtr > statements;
     readToken();
     while (startsStatement(nowReading)) {
         statements.push_back(parseStatement());
@@ -51,7 +51,7 @@ bool SQLParser::startsStatement(const Token token) {
         || startsDrop(token) || token == QUIT || token == EXECFILE;
 }
 
-PARSENODE_PTR SQLParser::parseStatement() {
+ParseNodePtr SQLParser::parseStatement() {
     if (!startsStatement(nowReading)) {
         syntaxError(nowReading, "expect start token!");
         return nullptr;
@@ -74,12 +74,12 @@ PARSENODE_PTR SQLParser::parseStatement() {
     else if (nowReading == QUIT) {
         readToken();
         expect(TERMINATOR);
-        return PARSENODE_PTR(new ParseNode(QUIT));
+        return ParseNodePtr(new ParseNode(QUIT));
     }
     else if (nowReading == EXECFILE) {
         readToken();
         expect(TERMINATOR);
-        return PARSENODE_PTR(new ParseNode(EXECFILE));
+        return ParseNodePtr(new ParseNode(EXECFILE));
     }
     else {
         assert(false);
@@ -91,8 +91,8 @@ bool SQLParser::startsQuit(const Token token) {
     return token == QUIT;
 }
 
-PARSENODE_PTR SQLParser::parseQuit() {
-    PARSENODE_PTR node(new ParseNode(QUIT));
+ParseNodePtr SQLParser::parseQuit() {
+    ParseNodePtr node(new ParseNode(QUIT));
     readToken();
     return node;    
 }
@@ -101,14 +101,14 @@ bool SQLParser::startsCreate(const Token token) {
     return token == CREATE;
 }
 
-PARSENODE_PTR SQLParser::parseCreate() {
+ParseNodePtr SQLParser::parseCreate() {
     if (!startsCreate(nowReading)) {
         syntaxError(nowReading, "expect create!");
         return nullptr;
     }
     //LOG_TRACE(logger, "parse create statement.");
 
-    PARSENODE_PTR createNode = PARSENODE_PTR(new ParseNode(CREATE));
+    ParseNodePtr createNode = ParseNodePtr(new ParseNode(CREATE));
     readToken();
 
     if (nowReading == TABLE) {
@@ -119,9 +119,9 @@ PARSENODE_PTR SQLParser::parseCreate() {
         
         expect(LEFT_BRACE);
         while (startsIdentifier(nowReading)) {
-            PARSENODE_PTR id = parseIdentifier();
+            ParseNodePtr id = parseIdentifier();
             //LOG_TRACE(logger, "parse id %s.", ((IdentifierNode*)id.get())->id_.c_str());
-            PARSENODE_PTR type = parseType();
+            ParseNodePtr type = parseType();
             if (nowReading == UNIQUE) {
                 readToken();
                 id->children.emplace_back(new ParseNode(UNIQUE));
@@ -143,13 +143,13 @@ PARSENODE_PTR SQLParser::parseCreate() {
         createNode->children.emplace_back(new ParseNode(INDEX));
         readToken();
 
-        PARSENODE_PTR indexNode = parseIdentifier();
+        ParseNodePtr indexNode = parseIdentifier();
         createNode->children.push_back(indexNode);
         expect(ON);
-        PARSENODE_PTR tableNode = parseIdentifier();
+        ParseNodePtr tableNode = parseIdentifier();
         createNode->children.push_back(tableNode);
         expect(LEFT_BRACE);
-        PARSENODE_PTR columnNode = parseIdentifier();
+        ParseNodePtr columnNode = parseIdentifier();
         createNode->children.push_back(columnNode);
         expect(RIGHT_BRACE);
     }
@@ -166,11 +166,11 @@ bool SQLParser::startsDrop(const Token token) {
     return token == DROP;
 }
 
-PARSENODE_PTR SQLParser::parseDrop() {
+ParseNodePtr SQLParser::parseDrop() {
     if (!startsDrop(nowReading)) {
         syntaxError(nowReading, "expect drop token!");
     }
-    PARSENODE_PTR dropNode = PARSENODE_PTR(new ParseNode(DROP));
+    ParseNodePtr dropNode = ParseNodePtr(new ParseNode(DROP));
     readToken();
     if (nowReading == TABLE) {
         readToken();
@@ -194,12 +194,12 @@ bool SQLParser::startsSelect(const Token token) {
     return token == SELECT;
 }
 
-PARSENODE_PTR SQLParser::parseSelect() {
+ParseNodePtr SQLParser::parseSelect() {
     if (!startsSelect(nowReading)) {
         syntaxError(nowReading, "expect select token!");
         return nullptr;
     }
-    PARSENODE_PTR selectNode = PARSENODE_PTR(new ParseNode(SELECT));
+    ParseNodePtr selectNode = ParseNodePtr(new ParseNode(SELECT));
     readToken();
     expect(STAR);
     expect(FROM);
@@ -212,8 +212,8 @@ PARSENODE_PTR SQLParser::parseSelect() {
     return selectNode;
 }
 
-PARSENODE_PTR SQLParser::parseCondition() {
-    PARSENODE_PTR condNode = PARSENODE_PTR(new ParseNode(AND));
+ParseNodePtr SQLParser::parseCondition() {
+    ParseNodePtr condNode = ParseNodePtr(new ParseNode(AND));
     condNode->children.push_back(parseExpression());
 
     while (nowReading == AND) {
@@ -223,10 +223,10 @@ PARSENODE_PTR SQLParser::parseCondition() {
     return condNode;
 }
 
-PARSENODE_PTR SQLParser::parseExpression() {
-    PARSENODE_PTR columnNode = parseIdentifier();
-    PARSENODE_PTR opNode = parseOperator();
-    PARSENODE_PTR valueNode = parseLiteral();
+ParseNodePtr SQLParser::parseExpression() {
+    ParseNodePtr columnNode = parseIdentifier();
+    ParseNodePtr opNode = parseOperator();
+    ParseNodePtr valueNode = parseLiteral();
     opNode->children.push_back(columnNode);
     opNode->children.push_back(valueNode);
     return opNode;
@@ -236,12 +236,12 @@ bool SQLParser::startsDelete(Token token) {
     return token == DELETE;
 }
 
-PARSENODE_PTR SQLParser::parseDelete() {
+ParseNodePtr SQLParser::parseDelete() {
     if (!startsDelete(nowReading)) {
         syntaxError(nowReading, "expect delete!");
         return nullptr;
     }
-    PARSENODE_PTR deleteNode = PARSENODE_PTR(new ParseNode(DELETE));
+    ParseNodePtr deleteNode = ParseNodePtr(new ParseNode(DELETE));
     readToken();
     expect(FROM);
     deleteNode->children.push_back(parseIdentifier());
@@ -257,14 +257,14 @@ bool SQLParser::startsInsert(Token token) {
     return token == INSERT;
 }
 
-PARSENODE_PTR SQLParser::parseInsert() {
+ParseNodePtr SQLParser::parseInsert() {
     if (!startsInsert(nowReading)) {
         syntaxError(nowReading, "expect insert token!");        
         return nullptr;
     }
     //LOG_TRACE(logger, "parse insert statement.");
 
-    PARSENODE_PTR insertNode = PARSENODE_PTR(new ParseNode(INSERT));
+    ParseNodePtr insertNode = ParseNodePtr(new ParseNode(INSERT));
     readToken();
     expect(INTO);
     insertNode->children.push_back(parseIdentifier());
@@ -282,22 +282,22 @@ PARSENODE_PTR SQLParser::parseInsert() {
     return insertNode;
 }
 
-PARSENODE_PTR SQLParser::parseType() {
+ParseNodePtr SQLParser::parseType() {
     //LOG_TRACE(logger, "parse type %s.", tokenStr[nowReading]);
     
     if (nowReading == INTEGER) {
         readToken();
-        return PARSENODE_PTR(new IntNode(-1));
+        return ParseNodePtr(new IntNode(-1));
     }
     else if (nowReading == FLOAT) {
         readToken();
-        return PARSENODE_PTR(new FloatNode(-1));
+        return ParseNodePtr(new FloatNode(-1));
     }
     else if (nowReading == CHAR) {
         readToken();
-        PARSENODE_PTR node =  PARSENODE_PTR(new CharNode);
+        ParseNodePtr node =  ParseNodePtr(new CharNode);
         expect(LEFT_BRACE);
-        PARSENODE_PTR num = parseInt();
+        ParseNodePtr num = parseInt();
         expect(RIGHT_BRACE);
         node->children.push_back(num);
         return node;
@@ -312,29 +312,29 @@ bool SQLParser::startsIdentifier(const Token token) {
     return token == IDENTIFIER;
 }
 
-PARSENODE_PTR SQLParser::parseIdentifier() {
+ParseNodePtr SQLParser::parseIdentifier() {
     if (nowReading != IDENTIFIER) {
         syntaxError(nowReading, "expect identifier!");
         return nullptr;
     }
     
-    PARSENODE_PTR node (new IdentifierNode(std::string(scanner->getTokenBuffer())));
+    ParseNodePtr node (new IdentifierNode(std::string(scanner->getTokenBuffer())));
     readToken();
     return node;
 }
 
-PARSENODE_PTR SQLParser::parseOperator() {
-    PARSENODE_PTR node = nullptr;
+ParseNodePtr SQLParser::parseOperator() {
+    ParseNodePtr node = nullptr;
     if (nowReading == GREATER || nowReading == LESS
         || nowReading == GREATER_EQUAL || nowReading == LESS_EQUAL
         || nowReading == EQUAL || nowReading == NOT_EQUAL) {
-        node =  PARSENODE_PTR(new ParseNode(nowReading));
+        node =  ParseNodePtr(new ParseNode(nowReading));
         readToken();
     }
     return node;
 }
 
-PARSENODE_PTR SQLParser::parseLiteral() {
+ParseNodePtr SQLParser::parseLiteral() {
     if (nowReading == INTEGER) {
         return parseInt();
     }
@@ -350,20 +350,20 @@ PARSENODE_PTR SQLParser::parseLiteral() {
     }
 }
 
-PARSENODE_PTR SQLParser::parseFloat() {
-    PARSENODE_PTR node(new FloatNode(::atof(scanner->getTokenBuffer())));
+ParseNodePtr SQLParser::parseFloat() {
+    ParseNodePtr node(new FloatNode(::atof(scanner->getTokenBuffer())));
     readToken();
     return node;
 }
 
-PARSENODE_PTR SQLParser::parseInt() {
-    PARSENODE_PTR node(new IntNode(::atoi(scanner->getTokenBuffer())));
+ParseNodePtr SQLParser::parseInt() {
+    ParseNodePtr node(new IntNode(::atoi(scanner->getTokenBuffer())));
     readToken();
     return node;
 }
 
-PARSENODE_PTR SQLParser::parseChar() {
-    PARSENODE_PTR node(new CharNode(std::string(scanner->getTokenBuffer())));
+ParseNodePtr SQLParser::parseChar() {
+    ParseNodePtr node(new CharNode(std::string(scanner->getTokenBuffer())));
     readToken();
     return node;
 }

@@ -13,12 +13,13 @@ namespace miniSQL {
 
 class SQLScanner;
 class Logger;
+class ParseNode;
 
-#define PARSENODE_PTR std::shared_ptr<ParseNode>
+typedef std::shared_ptr<ParseNode> ParseNodePtr;
 
 struct ParseNode {
     Token token_;
-    std::list<PARSENODE_PTR > children;
+    std::list<ParseNodePtr> children;
     ParseNode(Token token) : token_(token) {}
 };
 
@@ -51,7 +52,7 @@ public:
     DISALLOW_COPY_AND_ASSIGN(SQLParser);
     
 public:
-    std::list<PARSENODE_PTR> parseSQL();
+    std::list<ParseNodePtr> parseSQL();
 
     bool isError() const {
         return error_;
@@ -60,34 +61,34 @@ public:
 private:
 
     bool startsStatement(const Token token);
-    PARSENODE_PTR parseStatement();
+    ParseNodePtr parseStatement();
 
     bool startsQuit(const Token token);
-    PARSENODE_PTR parseQuit();
+    ParseNodePtr parseQuit();
 
     bool startsCreate(const Token token);
-    PARSENODE_PTR parseCreate();
+    ParseNodePtr parseCreate();
     bool startsDrop(const Token token);
-    PARSENODE_PTR parseDrop();
+    ParseNodePtr parseDrop();
     bool startsSelect(const Token token);
-    PARSENODE_PTR parseSelect();
+    ParseNodePtr parseSelect();
     bool startsDelete(const Token token);
-    PARSENODE_PTR parseDelete();
+    ParseNodePtr parseDelete();
     bool startsInsert(const Token token);
-    PARSENODE_PTR parseInsert();
+    ParseNodePtr parseInsert();
 
-    PARSENODE_PTR parseExpression();
-    PARSENODE_PTR parseCondition();    
-    PARSENODE_PTR parseType();
+    ParseNodePtr parseExpression();
+    ParseNodePtr parseCondition();    
+    ParseNodePtr parseType();
 
-    PARSENODE_PTR parseOperator();
-    PARSENODE_PTR parseLiteral();
+    ParseNodePtr parseOperator();
+    ParseNodePtr parseLiteral();
 
     bool startsIdentifier(const Token token);
-    PARSENODE_PTR parseIdentifier();
-    PARSENODE_PTR parseFloat();
-    PARSENODE_PTR parseInt();
-    PARSENODE_PTR parseChar();
+    ParseNodePtr parseIdentifier();
+    ParseNodePtr parseFloat();
+    ParseNodePtr parseInt();
+    ParseNodePtr parseChar();
 
 private:
     void readToken();
@@ -103,7 +104,7 @@ private:
     bool error_;
 
 private:
-    DECLARE_LOGGER();
+    DECLARE_LOGGER(c);
 };
 
 }

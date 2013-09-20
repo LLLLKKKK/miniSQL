@@ -76,11 +76,8 @@ private:
     std::list<K> _accessQueue;
 
 private:
-    DECLARE_LOGGER();
+    LoggerPtr _logger = Logger::getLogger("LRUCache");
 };
-
-template<class K, class V, class GetSizeCallback>
-LoggerPtr LRUCache<K, V, GetSizeCallback>::_logger = Logger::getLogger("LRUCache");
 
 template<class K, class V, class GetSizeCallback>
 LRUCache<K, V, GetSizeCallback>::LRUCache(

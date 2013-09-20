@@ -53,7 +53,7 @@ private:
     void scanOperator();
 
 private:
-    DECLARE_LOGGER();
+    DECLARE_LOGGER(c);
 };
 
 }

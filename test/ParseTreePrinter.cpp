@@ -6,17 +6,17 @@ using std::endl;
 int ParseTreePrinter::INDENT_INCREMENT = 4;
 
 void ParseTreePrinter::print(std::stringstream& stream, 
-                             const std::list<PARSENODE_PTR >& nodes) {
+                             const std::list<ParseNodePtr>& nodes) {
     for (auto it = nodes.begin(); it != nodes.end(); it++) {
         indentPrint(stream, *it, 0);
     }
 }
 
-void ParseTreePrinter::print(std::stringstream& stream, const PARSENODE_PTR node) {
+void ParseTreePrinter::print(std::stringstream& stream, const ParseNodePtr node) {
     indentPrint(stream, node, 0);
 }
 
-void ParseTreePrinter::indentPrint(std::stringstream& stream, const PARSENODE_PTR node, 
+void ParseTreePrinter::indentPrint(std::stringstream& stream, const ParseNodePtr node, 
                                    int indent) {
     for (int i = 0; i < indent; i++) {
         stream << ' ';
@@ -29,7 +29,7 @@ void ParseTreePrinter::indentPrint(std::stringstream& stream, const PARSENODE_PT
     }
 }
 
-void ParseTreePrinter::printNode(std::stringstream& stream, const PARSENODE_PTR node) {
+void ParseTreePrinter::printNode(std::stringstream& stream, const ParseNodePtr node) {
     if (!node) {
         stream << "NULL" << endl;
         std::cout << "MULL" << endl;

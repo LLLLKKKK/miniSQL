@@ -2,7 +2,8 @@ CC := g++
 SRCDIR := src
 test_SRCDIR := test
 BUILDDIR := build
-CXXFLAGS := -std=c++0x -Wall -O2 -g -D_GLIBCXX_DEBUG
+#CXXFLAGS := -std=c++0x -Wall -g3 -fno-inline -O0 -D_GLIBCXX_DEBUG
+CXXFLAGS := -std=c++0x -Wall -O2
 TARGET := test_main
 
 SRCEXT := cpp
@@ -17,6 +18,7 @@ DEPS := $(OBJECTS:.o=.d)
 
 $(TARGET): $(OBJECTS)
 	$(CC) $^ -o $(BUILDDIR)/$(TARGET)
+##	valgrind -v --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes $(BUILDDIR)/$(TARGET) --log_level=message
 	$(BUILDDIR)/$(TARGET) --log_level=message
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) 

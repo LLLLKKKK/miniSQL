@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( simpleTest )
         SQLScanner scanner(&inputHandler);
         SQLParser parser(&scanner);
         
-        std::list<PARSENODE_PTR > statements = parser.parseSQL();
+        std::list<ParseNodePtr> statements = parser.parseSQL();
         
         std::stringstream pstream;
         ParseTreePrinter::print(pstream, statements);
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( speedTest )
     SQLScanner scanner(&inputHandler);
     SQLParser parser(&scanner);
 
-    std::list<PARSENODE_PTR > statements = parser.parseSQL();
+    std::list<ParseNodePtr> statements = parser.parseSQL();
         
 
     boost::posix_time::ptime stop_time = boost::posix_time::microsec_clock::local_time();

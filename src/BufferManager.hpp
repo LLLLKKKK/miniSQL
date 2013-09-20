@@ -86,7 +86,7 @@ private:
     }
 
 private:
-    DECLARE_LOGGER();
+    DECLARE_LOGGER(c);
 };
 
 }

@@ -1,12 +1,13 @@
 #include "Logger.hpp"
 #include <cstdio>
 #include <cstdarg>
+#include <cassert>
 
 using std::string;
 
 namespace miniSQL {
 
-std::map<string, LoggerPtr > Logger::loggers;
+std::map<string, LoggerPtr> Logger::loggers;
 const int Logger::MAX_MESSAGE_SIZE = 1024;
 
 const char* Logger::level_str_[] = {
@@ -17,21 +18,20 @@ const char* Logger::level_str_[] = {
 LoggerPtr Logger::getLogger(const string& name) {
     auto it = loggers.find(name);
     LoggerPtr logger;
-    
+
     if (it == loggers.end()) {
         logger = LoggerPtr(new Logger(name));
-        loggers[name] = logger;
+        loggers.emplace(name, logger);
     }
     else {
         logger = it->second;
     }
-    
+
+    assert(logger);
     return logger;
 }
 
-Logger::Logger(const string& name) {
-    this->name = name;  
-}
+Logger::Logger(const string& name) : _name(name) { }
 
 void Logger::printfCurTime() {
     time_t n = time(NULL);

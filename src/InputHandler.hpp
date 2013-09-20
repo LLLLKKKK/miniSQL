@@ -30,7 +30,7 @@ private:
     static int lineReserveSize;
 
 private:
-    DECLARE_LOGGER();
+    DECLARE_LOGGER(c);
 };
 
 }
