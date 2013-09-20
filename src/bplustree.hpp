@@ -12,8 +12,8 @@ public:
         int n_ptrs;
         bool is_leaf;
 
-        T keys[degree - 1];
-        void* ptrs[degree];
+        T *keys;
+        void** ptrs;
         
         TreeNode():is_leaf(true), n_keys(0) {}
     };
