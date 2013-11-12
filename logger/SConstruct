@@ -1,0 +1,7 @@
+# -*-Python-*-
+
+targets = [
+    'SConscript'
+    ]
+
+SConscript(targets)

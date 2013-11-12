@@ -1,0 +1,28 @@
+# -*-Python-*-
+
+test_target =  'interpreter_test'
+test_sources =  [
+    'InputHandler_test.cpp',
+    'TokenAccepter_test.cpp',
+    'SQLScanner_test.cpp',
+    'SQLParser_test.cpp',
+    'ParseTreePrinter.cpp',
+    'test_main.cpp',
+    ]
+
+LIBS = [
+    'interpreter',
+    'logger',
+    ]
+
+env = Environment(CPPPATH = ['../', '../../'])
+
+env.Append(CXXFLAGS='-std=c++0x -Wall -O2')
+env.Program(target = '../../build/' + test_target,
+            source = test_sources,
+            LIBS = LIBS, 
+            LIBPATH = ['../../build'])
+# cp_fixture = env.Command(target = '../../df', 
+#                          source = 'fixture', 
+#                          action = 'csdfp $SOURCE $TARGET')
+# env.AlwaysBuild(cp_fixture)

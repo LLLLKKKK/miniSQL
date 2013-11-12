@@ -1,0 +1,10 @@
+# -*-Python-*-
+
+lib_target =  'logger'
+lib_sources =  [
+    'Logger.cpp',
+    ]
+
+env = Environment(CPPPATH = ['.'])
+env.Append(CXXFLAGS='-std=c++0x -Wall -O2 -g')
+env.Library(target = lib_target, source = lib_sources)
