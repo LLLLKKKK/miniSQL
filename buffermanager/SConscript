@@ -4,6 +4,8 @@ lib_target =  'buffermanager'
 lib_sources =  [
     'BufferManager.cpp',
     'FixedSizeChunkAllocator.cpp',
+    'DbFile.cpp',
+    'Page.cpp',                 
     ]
 
 LIBS = [

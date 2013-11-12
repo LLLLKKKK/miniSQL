@@ -76,7 +76,7 @@ DbFilePtr BufferManager::loadDbFile(const std::string& filename, bool isNew) {
 }
 
 void BufferManager::initDbFileHeaderPage(PagePtr page) {
-    SecondaryFileHeaderPage* header = reinterpret_cast<SecondaryFileHeaderPage*>
+    FileHeaderPage* header = reinterpret_cast<FileHeaderPage*>
                                       (page->data);
     strcpy(header->header_string, FILE_HEADER_STRING);
     strcpy(header->meta_version, META_VERSION);

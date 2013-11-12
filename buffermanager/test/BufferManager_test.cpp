@@ -36,10 +36,15 @@ BOOST_AUTO_TEST_CASE( DbFileOperations )
         {
             auto file = bufferManager.loadDbFile(filename);
             BOOST_REQUIRE( file != nullptr );
-            auto page1 = bufferManager.createPage(filename);
-            auto page2 = bufferManager.createPage(filename);
+            BOOST_REQUIRE( bufferManager.createPage(filename) == 1 );
+            BOOST_REQUIRE( bufferManager.createPage(filename) == 2 );
         }
+        BOOST_REQUIRE( bufferManager.deletePage(filename, 1) );
+        //BOOST_REQUIRE( bufferManager.getPage(filename, 1) == nullptr );
+        BOOST_REQUIRE( bufferManager.createPage(filename) == 1);
+        BOOST_REQUIRE( bufferManager.createPage(filename) == 3);
     }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

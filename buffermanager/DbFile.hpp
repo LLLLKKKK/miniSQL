@@ -15,11 +15,12 @@
 namespace miniSQL {
 
 struct Page;
-struct DbFile;
+class DbFile;
 typedef std::shared_ptr<DbFile> DbFilePtr;
 
 
-struct DbFile {
+class DbFile {
+public:
     int fd;
     uint32_t size;
     PagePtr headerPage;
@@ -38,80 +39,17 @@ private:
 
 public:
     static DbFilePtr open(const std::string filename, 
-                          FixedSizeChunkAllocator* alloc, uint32_t _pageSize) {
-        int fd = ::open(filename.c_str(), O_CREAT | O_DIRECT | O_RDWR, 
-                        S_IRUSR | S_IWUSR);
-        if (fd < 0) {
-            return nullptr;
-        }
-        return DbFilePtr(new DbFile(fd, filename, alloc, _pageSize)); 
-    }
+                          FixedSizeChunkAllocator* alloc, uint32_t _pageSize);
 
-    uint32_t getOffset(PageID pageID) {
-        return pageSize * pageID;
-    }
+public:
+    uint32_t getOffset(PageID pageID);
+    bool validatePageID(PageID pageID);
+    FileHeaderPage* getHeader();
+    PagePtr createHeader();
+    PagePtr createPage(PageID pageID);
+    PagePtr readPage(PageID pageID);
+    bool writebackPage(Page* page);
 
-    bool validatePageID(PageID pageID) {
-        auto header = getHeader();
-        return pageSize * (1 + pageID) <= header->file_size;
-    }
-
-    SecondaryFileHeaderPage* getHeader() {
-        return reinterpret_cast<SecondaryFileHeaderPage*>
-            (headerPage->data);
-    }
-
-    PagePtr createHeader() {
-        void* data = allocator->allocate(pageSize);
-        if (ftruncate(fd, pageSize)) {
-            MINISQL_LOG_ERROR( "increase file size %s failed! %s", 
-                    filename.c_str(), strerror(errno));
-            allocator->free(data);
-            return nullptr;
-        }
-        size = pageSize;
-        return PagePtr(new Page { data, PageID(0), true,
-                        [this] (Page* page)  { this->writebackPage(page); } });
-    }
-
-    PagePtr createPage(PageID pageID) {
-        void* data = allocator->allocate(pageSize);
-        auto header = getHeader();
-        if (ftruncate(fd, header->file_size + pageSize)) {
-            MINISQL_LOG_ERROR( "increase file size %s failed! %s", 
-                    filename.c_str(), strerror(errno));
-            allocator->free(data);
-            return nullptr;
-        }
-        header->file_size += pageSize;
-        size = header->file_size;
-        return PagePtr(new Page { data, pageID, true,
-                        [this] (Page* page)  { this->writebackPage(page); } });
-    }
-    
-    PagePtr readPage(PageID pageID) {
-        void* data = allocator->allocate(pageSize);
-        if (::read(fd, data, pageSize) < 0) {
-            MINISQL_LOG_ERROR( "read page failed for file %s page %u, %s", 
-                    filename.c_str(), pageID, strerror(errno));
-            return nullptr;            
-        }
-        return PagePtr(new Page { data, pageID, false,
-                        [this] (Page* page)  { this->writebackPage(page); } });
-    }
-    
-    bool writebackPage(Page* page) {
-        if (!page->isDirty) {
-            return true;
-        }
-        if (::write(fd, page->data, pageSize) < 0) {
-            MINISQL_LOG_ERROR( "write failed for file %s page %u, %s",
-                    filename.c_str(), page->id, strerror(errno));
-            return false;
-        }
-        page->isDirty = false;
-        return true;
-    }
 
 private:
     DECLARE_LOGGER(DbFile);
