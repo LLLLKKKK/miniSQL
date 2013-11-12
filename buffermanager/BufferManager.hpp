@@ -18,14 +18,8 @@ class FixedSizeChunkAllocator;
 class BufferManager;
 class Logger;
 
-struct PageWrapper {
-    DbFilePtr file;
-    PagePtr page;
-    bool isDirty;
-};
-    
-struct PageWrapperGetSizeCallback {
-    uint64_t operator() (PageWrapper page) {
+struct PageGetSizeCallback {
+    uint64_t operator() (PagePtr page) {
         return PAGE_SIZE;
     }
 };
@@ -42,7 +36,7 @@ public:
 public:
     bool init();
 
-    PageID createPage(const std::string& filename, PageID pageID);
+    PageID createPage(const std::string& filename);
     bool pinPage(const std::string& filename, PageID PageID);
     bool unpinPage(const std::string& filename, PageID PageID);
     bool deletePage(const std::string& filename, PageID PageID);
@@ -59,7 +53,7 @@ private:
     uint32_t _maxDbFileSize;
     uint32_t _pageSize;
 
-    LRUCache<std::pair<std::string, PageID>, PageWrapper, PageWrapperGetSizeCallback> _cache;
+    LRUCache<std::pair<std::string, PageID>, PagePtr, PageGetSizeCallback> _cache;
     FixedSizeChunkAllocator _allocator;
 
     std::map<std::string, DbFilePtr> _fileMap;

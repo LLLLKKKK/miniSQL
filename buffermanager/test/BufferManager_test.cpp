@@ -18,12 +18,13 @@ BOOST_AUTO_TEST_SUITE ( buffermanager_test_suite )
 
 BOOST_AUTO_TEST_CASE( DbFileOperations ) 
 {
+    auto filename = "bufMgrTest";
     {
         // DbFile create
         BufferManager bufferManager;
         bufferManager.init();
         {
-            auto file = bufferManager.createDbFile("bufMgrTest");
+            auto file = bufferManager.createDbFile(filename);
             BOOST_REQUIRE( file != nullptr );
         }
     }
@@ -33,8 +34,9 @@ BOOST_AUTO_TEST_CASE( DbFileOperations )
         BufferManager bufferManager;
         bufferManager.init();
         {
-            auto file = bufferManager.loadDbFile("bufMgrTest");
+            auto file = bufferManager.loadDbFile(filename);
             BOOST_REQUIRE( file != nullptr );
+            //bufferManager.creatPage(
         }
     }
 }

@@ -2,8 +2,8 @@
 #include <cstring>
 #include <fstream>
 
-#include "logger/Logger.hpp"
 #include "common.h"
+#include "logger/Logger.hpp"
 #include "BufferManager.hpp"
 #include "FixedSizeChunkAllocator.hpp"
 
@@ -17,9 +17,6 @@ BufferManager::BufferManager() :
 
 BufferManager::~BufferManager() { 
     _cache.clear();
-    for (auto& file : _fileMap) {
-        ::close(file.second->fd);
-    }
     _fileMap.clear();
 }
 
@@ -41,10 +38,15 @@ DbFilePtr BufferManager::loadDbFile(const std::string& filename, bool isNew) {
         return nullptr;
     }
 
-    auto file = DbFile::open(filename, allocator);
+    auto file = DbFile::open(filename, &_allocator, _pageSize);
+    if (!file) {
+        MINISQL_LOG_ERROR( "Can't open file %s!", filename.c_str());
+        return nullptr;
+    }
+
     PagePtr headerPage;
     if (isNew) {
-        headerPage = file->createPage(PageID(0));
+        headerPage = file->createHeader();
     } else {
         headerPage = file->readPage(PageID(0));
     }
@@ -67,7 +69,7 @@ DbFilePtr BufferManager::loadDbFile(const std::string& filename, bool isNew) {
     file->size = header->file_size;
 
     _cache.put(std::make_pair(filename, headerPage->id), 
-               PageWrapper { file, headerPage, false }, true);
+               headerPage, true);
     _fileMap.insert(make_pair(filename, file));
     
     return file;
@@ -105,12 +107,11 @@ void BufferManager::initNormalPage(PagePtr page) {
 }
 
 // try to allocate it in the same file
-PageID BufferManager::createPage(const std::string& filename, PageID pageID) {
+PageID BufferManager::createPage(const std::string& filename) {
     auto it = _fileMap.find(filename);
 
     if (it == _fileMap.end()) {
-        MINISQL_LOG_ERROR("invalid filename %s for page %s!", 
-                          filename.c_str(), std::to_string(pageID).c_str());
+        MINISQL_LOG_ERROR("invalid filename %s!", filename.c_str());
         return INVALID_PAGEID;
     }
 
@@ -129,19 +130,19 @@ PageID BufferManager::createPage(const std::string& filename, PageID pageID) {
     // create a new page
     if (_maxDbFileSize - _pageSize > file->size) {
 
-        PageID id = ++header->page_end;
-        PagePtr page = mapPage(file, id);
+        PageID pageID = ++header->page_end;
+        PagePtr page = file->createPage(pageID);
         if (!page) {
-            MINISQL_LOG_ERROR("map page %s failed!", std::to_string(pageID).c_str());
+            MINISQL_LOG_ERROR("Create page %s failed!", std::to_string(pageID).c_str());
             return INVALID_PAGEID;
         }
+        initNormalPage(page);
         header->file_size += _pageSize;
 
-        return id;
+        return pageID;
     }
-    // create a new file for that page
     else {
-        assert(false);
+        MINISQL_LOG_ERROR("File [%s] exceed max size!", filename.c_str());
         return INVALID_PAGEID;
     }
 }
@@ -165,9 +166,9 @@ PagePtr BufferManager::getPage(const std::string& filename, PageID pageID) {
         return nullptr;
     }
 
-    page = mapPage(file, pageID);
+    page = file->readPage(pageID);
     if ( ! page) {
-        MINISQL_LOG_ERROR( "Map page %u failed!", pageID);
+        MINISQL_LOG_ERROR( "Create page %u failed!", pageID);
         return nullptr;
     }
     
@@ -178,6 +179,11 @@ PagePtr BufferManager::getPage(const std::string& filename, PageID pageID) {
 
 
 bool BufferManager::deletePage(const std::string& filename, PageID pageID) {
+    if (pageID == INVALID_PAGEID) {
+        MINISQL_LOG_ERROR( "invalid pageID %u!", pageID);
+        return false;
+    }
+    
     auto it = _fileMap.find(filename);
     if (it == _fileMap.end()) {
         MINISQL_LOG_ERROR( "invalid pageID %u, can't find file!", pageID);

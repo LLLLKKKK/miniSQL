@@ -1,10 +1,10 @@
 #ifndef PAGE_HPP
 #define PAGE_HPP
 
+namespace miniSQL {
+
 #include <memory>
 #include <functional>
-
-namespace miniSQL {
 
 #define MAX_FILEID 0xFFFF
 #define MAX_PAGEID 0xFFFFFFFF
@@ -19,12 +19,21 @@ namespace miniSQL {
 
 typedef uint32_t PageID;
 
+struct DbFile;
 struct Page;
 typedef std::shared_ptr<Page> PagePtr;
 
 struct Page {
     void* data;
     PageID id;
+    bool isDirty;
+    std::function<void(Page*)> destroyCallback;
+
+    ~Page() {
+        if (isDirty && destroyCallback) {
+            destroyCallback(this);
+        }
+    }
 };
 
 struct SecondaryFileHeaderPage;
