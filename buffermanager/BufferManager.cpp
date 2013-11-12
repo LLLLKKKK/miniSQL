@@ -89,7 +89,7 @@ void BufferManager::initDbFileHeaderPage(PagePtr page) {
 }
 
 void BufferManager::initNormalPage(PagePtr page) {
-    PageHeader* header = reinterpret_cast<PageHeader*>(page.get());
+    PageHeader* header = reinterpret_cast<PageHeader*>(page->data);
     strcpy(header->header_string, PAGE_HEADER_STRING);
     strcpy(header->meta_version, META_VERSION);
     header->page_size = PAGE_SIZE;

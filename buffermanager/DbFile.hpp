@@ -58,7 +58,7 @@ public:
 
     SecondaryFileHeaderPage* getHeader() {
         return reinterpret_cast<SecondaryFileHeaderPage*>
-            (headerPage.get());
+            (headerPage->data);
     }
 
     PagePtr createHeader() {
@@ -85,7 +85,7 @@ public:
         }
         header->file_size += pageSize;
         size = header->file_size;
-        return PagePtr(new Page { data, pageID, false,
+        return PagePtr(new Page { data, pageID, true,
                         [this] (Page* page)  { this->writebackPage(page); } });
     }
     

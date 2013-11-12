@@ -36,7 +36,8 @@ BOOST_AUTO_TEST_CASE( DbFileOperations )
         {
             auto file = bufferManager.loadDbFile(filename);
             BOOST_REQUIRE( file != nullptr );
-            //bufferManager.creatPage(
+            auto page1 = bufferManager.createPage(filename);
+            auto page2 = bufferManager.createPage(filename);
         }
     }
 }
