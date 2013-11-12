@@ -101,11 +101,15 @@ public:
     }
     
     bool writebackPage(Page* page) {
+        if (!page->isDirty) {
+            return true;
+        }
         if (::write(fd, page->data, pageSize) < 0) {
             MINISQL_LOG_ERROR( "write failed for file %s page %u, %s",
                     filename.c_str(), page->id, strerror(errno));
             return false;
         }
+        page->isDirty = false;
         return true;
     }
 
