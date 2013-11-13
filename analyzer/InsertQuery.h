@@ -1,7 +1,9 @@
 #ifndef _QUERY_H_
 #define _QUERY_H_
 
+#include <map>
 #include <vector>
+#include <string>
 #include <memory>
 #include "common.h"
 
@@ -11,18 +13,6 @@ enum QueryType {
 
 };
 
-typedef uint8_t FieldBaseType;
-
-const FieldBaseType FloatType = 0;
-const FieldBaseType IntType = 1;
-const FieldBaseType CharType = 2;
-
-const FieldBaseType UniqueType = 1 << 7;
-
-struct FieldType {
-    FieldBaseType baseType;
-    uint8_t length;
-};
 
 struct Field {
     FieldType fieldType;

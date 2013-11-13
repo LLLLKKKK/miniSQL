@@ -1,0 +1,11 @@
+# -*-Python-*-
+
+target = [
+    'SConscript',
+#    'test/SConscript',
+    ]
+
+SConscript(target)
+
+
+
