@@ -7,6 +7,7 @@ target = [
     'buffermanager/SConscript',
     'recordmanager/SConscript',
     'service/SConscript',
+    'analyzer/SConscript',
     ]
 
 SConscript(target)

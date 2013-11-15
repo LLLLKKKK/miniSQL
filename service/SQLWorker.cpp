@@ -116,7 +116,7 @@ bool SQLWorker::start(std::istream* stream) {
             break;
         case INSERT:
             break;
-    n    default:
+        default:
             return false;
         }
     }
