@@ -13,6 +13,7 @@ LIBS = [
     'catelogmanager',
     'recordmanager',
     'buffermanager',
+    'sqlanalyzer',
     ]
 
 LIBPATH = [
@@ -21,6 +22,7 @@ LIBPATH = [
     '../catelogmanager',
     '../recordmanager',
     '../buffermanager',
+    '../analyzer',
     ]
 
 env = Environment(CPPPATH = ['../', '.'])

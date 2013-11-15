@@ -14,6 +14,12 @@ enum AnalyzerError {
     INDEX_NAME_EXSITS,
 };
 
+struct IndexInfo {
+    std::string tablename;
+    std::string columnname;
+    std::string indexname;
+};
+
 class CatelogManager;
 
 class SQLAnalyzer {
@@ -22,10 +28,12 @@ public:
     DISALLOW_COPY_AND_ASSIGN(SQLAnalyzer);
 
 public:
-    bool validateCreate(ParseNodePtr node, TableInfo& tableInfo);
-    bool validateDrop(ParseNodePtr node);
+    bool validateCreateTable(ParseNodePtr node, TableInfo& tableInfo);
+    bool validateCreateIndex(ParseNodePtr node, IndexInfo& indexInfo);
+    bool validateDropTable(ParseNodePtr node, std::string& tablename);
+    bool validateDropIndex(ParseNodePtr node, std::string& indexname);
     bool validateInsert(ParseNodePtr node, Record& record);
-    bool validateSelect(ParseNodePtr node);
+    bool validateSelect(ParseNodePtr node, TableInfo& tableInfo);
     bool validateDelete(ParseNodePtr node);
 
     AnalyzerError getLastError() const;

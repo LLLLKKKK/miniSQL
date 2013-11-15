@@ -154,7 +154,7 @@ bool CatelogManager::readTableInfoFile(const std::string& infoFile, TableInfo& t
         std::string index, field;
         ifs >> index >> field;
         tableInfo.indexMap[index] = field;
-        _indexSet.insert(index);
+        _indexMap[index] = tableInfo.name;
     }
     int fieldNum;
     uint32_t size;
@@ -200,7 +200,39 @@ bool CatelogManager::writeTableInfoFile(const std::string& infoFile,
 }
 
 bool CatelogManager::getIndex(const std::string& indexname) {
-    return _indexSet.find(indexname) != _index.end();
+    return _indexMap.find(indexname) != _indexMap.end();
+}
+
+bool CatelogManager::addIndex(const std::string& tablename, const std::string& indexname,
+                              const std::string& fieldname) {
+    if (getIndex(indexname)) {
+        MINISQL_LOG_ERROR( "Index [%s] has been existed!", indexname.c_str());
+        return false;
+    }
+    auto it = _tableMap.find(tablename);
+    if (it == _tableMap.end()) {
+        MINISQL_LOG_ERROR( "Table [%s] does not exist!", tablename.c_str());
+        return false;
+    }
+    it->second.indexMap[indexname] = fieldname;
+    _indexMap[indexname] = tablename;
+    return false;
+}
+
+bool CatelogManager::deleteIndex(const std::string& indexname) {
+    auto it = _indexMap.find(indexname);
+    if (it == _indexMap.end()) {
+        MINISQL_LOG_ERROR( "Index [%s] has been existed!", indexname.c_str());
+        return false;
+    }
+    auto tIt = _tableMap.find(it->second);
+    if (tIt == _tableMap.end()) {
+        MINISQL_LOG_ERROR( "Table [%s] does not exist!", it->first.c_str());
+        return false;
+    }
+    tIt->second.indexMap.erase(tIt->second.indexMap.find(indexname));
+
+    return true;
 }
 
 }

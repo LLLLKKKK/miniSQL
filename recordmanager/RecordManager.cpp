@@ -51,9 +51,14 @@ bool RecordManager::insertRecord(const Record& record, fileposition& pos) {
     }
     auto header = getRecordPageHeader();
     auto offset = header->record_end;
-    header->record_end += _recordInfo.size;
-    record.storeFields(static_cast<char*>(_currentPage->data) + offset);
- 
+    auto now_ptr = static_cast<char*>(_currentPage->data) + offset;
+    auto 2byte_ptr = reinterpret_cast<uint16_t*>(now_ptr);
+    *2byte_ptr++ = RECORD_META;
+    *2byte_ptr++ = RECORD_VERSION;
+    now_ptr = reinterpret_cast<char*>(2byte_ptr);
+    record.storeFields(now_ptr);
+    header->record_end += _recordInfo.size + 4;
+    
     if (header->record_end + _recordInfo.size > header->record_slot_array_start) {
         _currentPage = _bufferManager->createPage(_recordFile);
     }
@@ -62,6 +67,18 @@ bool RecordManager::insertRecord(const Record& record, fileposition& pos) {
 }
 
 bool RecordManager::deleteRecord(const fileposition& position) {
+    auto page = _bufferManager->getPage(_recordFile, getPageID(pos));
+    if (!page) {
+        MINISQL_LOG_ERROR("Invalid fileposition [%s] when reading record file [%s]!",
+                          std::to_string(pos).c_str(), _recordFile.c_str());
+        return false;
+    }
+    auto offset = getPageOffset(pos);
+    auto now_ptr = static_cast<char*>(_currentPage->data) + offset;
+    auto 2byte_ptr = reinterpret_cast<uint32_t*>(now_ptr);
+    2byte_ptr++;
+    2byte_ptr = RECORD_DELETED;
+
     return true;
 }
 

@@ -8,6 +8,7 @@
 #include "buffermanager/BufferManager.h"
 #include "recordmanager/RecordManager.h"
 #include "catelogmanager/CatelogManager.h"
+#include "analyzer/SQLAnalyzer.h"
 
 namespace miniSQL {
 
@@ -23,11 +24,14 @@ public:
     
 private:
     std::list<ParseNodePtr> parse(std::istream* stream);
+    bool startCreate(ParseNodePtr node);
+    bool startDrop(ParseNodePtr node);
+    bool startSelect(ParseNodePtr node);
+    
 private:
     BufferManagerPtr _bufferManager;
-    std::unique_ptr<SQLAnalyzer> _analyzer;
     CatelogManager _catelogManager;
-    
+    SQLAnalyzer _analyzer;
 
 private:
     DECLARE_LOGGER(SQLWorker);

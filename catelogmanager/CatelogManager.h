@@ -32,6 +32,9 @@ public:
     bool deleteCatelog(const std::string& tablename);
     bool getCatelog(const std::string& tablename, TableInfo& tableInfo);
     bool getIndex(const std::string& indexname);
+    bool addIndex(const std::string& tablename, const std::string& indexname, 
+                  const std::string& fieldname);
+    bool deleteIndex(const std::string& indexname);
     
 private:
     bool serializePrimaryDataFile();
@@ -46,7 +49,7 @@ private:
 private:
     std::set<std::string> _tableInfoFileSet;
     std::map<std::string, TableInfo> _tableMap;
-    std::set<std::string> _indexSet;
+    std::map<std::string, std::string> _indexMap;
 
 private:
     DECLARE_LOGGER(CatelogManager);

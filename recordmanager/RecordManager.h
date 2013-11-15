@@ -13,6 +13,10 @@
 
 namespace miniSQL {
 
+const uint16_t RECORD_META = 0x1234;
+const uint16_t RECORD_VERSION = 0x0000;
+cosnt uint16_t RECORD_DELETED = 0x0101;
+
 typedef uint64_t fileposition;
 
 struct __attribute__((packed)) RecordPageHeader {
@@ -41,7 +45,7 @@ public:
                    Record& record);
     bool insertRecord(const Record& record, fileposition& pos);
     bool deleteRecord(const fileposition& position);
-
+    
 private:
     PageID getPageID(fileposition pos) {
         return static_cast<uint32_t>(pos >> 32);
