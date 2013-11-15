@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <list>
+#include <vector>
 #include <string>
 #include "common.h"
 #include "Token.h"
@@ -19,7 +20,7 @@ typedef std::shared_ptr<ParseNode> ParseNodePtr;
 
 struct ParseNode {
     Token token;
-    std::list<ParseNodePtr> children;
+    std::vector<ParseNodePtr> children;
     ParseNode(Token token_) : token(token_) {}
 };
 

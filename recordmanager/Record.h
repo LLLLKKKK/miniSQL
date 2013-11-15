@@ -18,12 +18,9 @@ const FieldBaseType CharType = 2;
 
 const FieldBaseType UniqueType = 1 << 7;
 
-union FieldType {
-    struct {
-        FieldBaseType baseType;
-        uint8_t length;
-    };
-    uint16_t type;
+struct FieldType {
+    FieldBaseType baseType;
+    uint8_t length;
 };
 
 struct FieldInfo {

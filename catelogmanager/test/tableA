@@ -1,6 +1,8 @@
 tableA
-3
-indexa field1
-indexb field2
-indexc field3
-4 10
+2
+indexA columnA
+indexB columnB
+3 20
+columnA 0 0 0
+columnB 1 0 8
+columnC 2 10 12

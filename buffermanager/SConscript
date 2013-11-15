@@ -8,14 +8,7 @@ lib_sources =  [
     'Page.cpp',                 
     ]
 
-LIBS = [
-    'logger',
-    ]
-
-
 env = Environment(CPPPATH = ['../', '.'])
 env.Append(CXXFLAGS='-std=c++0x -Wall -O2 -g -gdwarf-2')
-env.Library(target = '../build/' + lib_target,
-            source = lib_sources,
-            LIBS = LIBS, 
-            LIBPATH = ['../build'])
+env.Library(target = lib_target,
+            source = lib_sources)

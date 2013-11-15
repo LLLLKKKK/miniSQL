@@ -1,10 +1,14 @@
 # -*-Python-*-
 
-test_target =  'recordmanager_test'
+test_target =  'buffermanager_test'
 test_sources =  [
+    'BufferManager_test.cpp',
+    'test_main.cpp',
     ]
 
 LIBS = [
+    'logger',
+    'buffermanager',
     ]
 
 env = Environment(CPPPATH = ['../', '../../'])
@@ -13,4 +17,4 @@ env.Append(CXXFLAGS='-std=c++0x -Wall -O2 -g -gdwarf-2')
 env.Program(target = test_target,
             source = test_sources,
             LIBS = LIBS, 
-            LIBPATH = ['../../logger', '../'])
+            LIBPATH = ['../../logger', '../../buffermanager'])

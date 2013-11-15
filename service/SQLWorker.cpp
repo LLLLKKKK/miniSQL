@@ -3,6 +3,7 @@
 #include "SQLWorker.h"
 #include "interpreter/InputHandler.h"
 #include "interpreter/SQLScanner.h"
+#include "analyzer/SQLAnalyzer.h"
 
 namespace miniSQL {
 
@@ -30,6 +31,8 @@ bool SQLWorker::init() {
         MINISQL_LOG_ERROR("CatelogManager init failed!");
         return false;
     }
+    
+    _analyzer = make_unique<SQLAnalyzer>(&_catelogManager);
     
     return true;
 }

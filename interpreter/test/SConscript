@@ -22,7 +22,8 @@ env.Program(target = test_target,
             source = test_sources,
             LIBS = LIBS, 
             LIBPATH = ['../', '../../logger'])
-# cp_fixture = env.Command(target = '../../df', 
-#                          source = 'fixture', 
-#                          action = 'csdfp $SOURCE $TARGET')
-# env.AlwaysBuild(cp_fixture)
+
+test = env.Command(target = 'test', 
+                   source = [ ],
+                   action = './interpreter_test')
+env.AlwaysBuild(test)

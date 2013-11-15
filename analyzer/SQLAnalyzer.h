@@ -1,9 +1,10 @@
 #ifndef _SQLANALYZER_H_
 #define _SQLANALYZER_H_
 
-#include "Query.h"
-#include "Command.h"
+#include "logger/Logger.h"
 #include "interpreter/SQLParser.h"
+#include "catelogmanager/CatelogManager.h"
+#include "recordmanager/Record.h"
 
 namespace miniSQL {
 
@@ -13,13 +14,28 @@ enum AnalyzerError {
     INDEX_NAME_EXSITS,
 };
 
+class CatelogManager;
 
 class SQLAnalyzer {
+public:
+    SQLAnalyzer(CatelogManager *catelogManager);
     DISALLOW_COPY_AND_ASSIGN(SQLAnalyzer);
 
 public:
-    std::vector<CommandPtr> analyze(std::list<ParseNodePtr> parseNodes);
+    bool validateCreate(ParseNodePtr node, TableInfo& tableInfo);
+    bool validateDrop(ParseNodePtr node);
+    bool validateInsert(ParseNodePtr node, Record& record);
+    bool validateSelect(ParseNodePtr node);
+    bool validateDelete(ParseNodePtr node);
+
     AnalyzerError getLastError() const;
+    
+private:
+    CatelogManager *_catelogManager;
+    AnalyzerError _lastError;
+
+private:
+    DECLARE_LOGGER(SQLAnalyzer);
 };
 
 }

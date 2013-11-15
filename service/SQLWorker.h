@@ -25,7 +25,9 @@ private:
     std::list<ParseNodePtr> parse(std::istream* stream);
 private:
     BufferManagerPtr _bufferManager;
+    std::unique_ptr<SQLAnalyzer> _analyzer;
     CatelogManager _catelogManager;
+    
 
 private:
     DECLARE_LOGGER(SQLWorker);

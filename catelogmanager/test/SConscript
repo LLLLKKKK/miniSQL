@@ -2,11 +2,12 @@
 
 test_target =  'catelogmanager_test'
 test_sources =  [
-    'Catelog_test.cpp',        
+    'CatelogManager_test.cpp',        
     'test_main.cpp',
     ]
 
 LIBS = [
+    'catelogmanager',
     'logger',
     ]
 
@@ -16,4 +17,9 @@ env.Append(CXXFLAGS='-std=c++0x -Wall -O2 -g -gdwarf-2')
 env.Program(target = test_target,
             source = test_sources,
             LIBS = LIBS, 
-            LIBPATH = ['../../logger', '../'])
+            LIBPATH = ['../', '../../logger'])
+
+test = env.Command(target = 'test', 
+                   source = [ test_target ],
+                   action = './catelogmanager_test')
+env.AlwaysBuild(test)

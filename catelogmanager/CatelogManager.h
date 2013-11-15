@@ -28,7 +28,11 @@ public:
 public:
     bool readCatelog();
     bool writeCatelog();
-
+    bool addCatelog(const TableInfo& tableInfo);
+    bool deleteCatelog(const std::string& tablename);
+    bool getCatelog(const std::string& tablename, TableInfo& tableInfo);
+    bool getIndex(const std::string& indexname);
+    
 private:
     bool serializePrimaryDataFile();
     bool deserializePrimaryDataFile();
@@ -42,7 +46,8 @@ private:
 private:
     std::set<std::string> _tableInfoFileSet;
     std::map<std::string, TableInfo> _tableMap;
-    
+    std::set<std::string> _indexSet;
+
 private:
     DECLARE_LOGGER(CatelogManager);
 };
