@@ -7,7 +7,7 @@
 #include <cstring>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "BufferManager.hpp"
+#include "BufferManager.h"
 
 
 using std::cout;
@@ -36,13 +36,13 @@ BOOST_AUTO_TEST_CASE( DbFileOperations )
         {
             auto file = bufferManager.loadDbFile(filename);
             BOOST_REQUIRE( file != nullptr );
-            BOOST_REQUIRE( bufferManager.createPage(filename) == 1 );
-            BOOST_REQUIRE( bufferManager.createPage(filename) == 2 );
+            BOOST_REQUIRE( bufferManager.createPage(filename)->id == 1 );
+            BOOST_REQUIRE( bufferManager.createPage(filename)->id == 2 );
         }
         BOOST_REQUIRE( bufferManager.deletePage(filename, 1) );
         //BOOST_REQUIRE( bufferManager.getPage(filename, 1) == nullptr );
-        BOOST_REQUIRE( bufferManager.createPage(filename) == 1);
-        BOOST_REQUIRE( bufferManager.createPage(filename) == 3);
+        BOOST_REQUIRE( bufferManager.createPage(filename)->id == 1);
+        BOOST_REQUIRE( bufferManager.createPage(filename)->id == 3);
     }
 
 }

@@ -1,6 +1,8 @@
-#include "ParseTreePrinter.hpp"
+
 #include <sstream>
 #include <iostream>
+#include "ParseTreePrinter.h"
+
 using std::endl;
 
 int ParseTreePrinter::INDENT_INCREMENT = 4;

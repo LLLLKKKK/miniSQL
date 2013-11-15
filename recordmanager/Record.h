@@ -4,8 +4,9 @@
 
 #include <string>
 #include <map>
+#include <cstring>
 #include "common.h"
-#include "logger/Logger.hpp"
+#include "logger/Logger.h"
 
 namespace miniSQL {
 
@@ -46,6 +47,14 @@ public:
     
     template<class T>
     void putField(const std::string& fieldname, const T& field);
+
+    void loadFields(const void* memory) {
+        memcpy(_recordBuffer, memory, _recordInfo.size);
+    }
+    
+    void storeFields(void* memory) const {
+        memcpy(memory, _recordBuffer, _recordInfo.size);
+    }
     
 private:
     char* _recordBuffer;

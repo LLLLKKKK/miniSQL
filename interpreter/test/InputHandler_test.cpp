@@ -1,7 +1,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <iostream>
-#include "SQLScanner.hpp"
+#include "SQLScanner.h"
 
 using std::cout;
 using namespace boost::unit_test;

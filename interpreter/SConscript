@@ -1,6 +1,7 @@
 # -*-Python-*-
 
 lib_target =  'interpreter'
+
 lib_sources =  [
     'InputHandler.cpp',
     'SQLScanner.cpp',
@@ -9,8 +10,11 @@ lib_sources =  [
     'Token.cpp',
     ]
 
+LIBS = [
+    'logger',
+    ]
 
 env = Environment(CPPPATH = ['../'])
 env.Append(CXXFLAGS='-std=c++0x -Wall -O2')
-env.Library(target = '../build/' + lib_target, 
+env.Library(target = lib_target, 
             source = lib_sources)

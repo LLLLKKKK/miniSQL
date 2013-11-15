@@ -1,4 +1,4 @@
-#include "TokenAccepter.hpp"
+#include "TokenAccepter.h"
 #include <string>
 
 namespace miniSQL {

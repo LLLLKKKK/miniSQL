@@ -6,8 +6,49 @@
 
 namespace miniSQL {
 
-
 const std::string CatelogManager::PRIMARY_DATA_FILE = "miniSQL.primary";
+
+CatelogManager::CatelogManager() { 
+
+}
+
+CatelogManager::~CatelogManager() {
+    writeCatelog();
+}
+
+bool CatelogManager::writeCatelog() {
+    if (!serializePrimaryDataFile()) {
+        MINISQL_LOG_ERROR("Serialize primary data file [%s] failed!", 
+                          PRIMARY_DATA_FILE.c_str());
+        return false;
+    }
+    for (auto& tableFile : _tableInfoFileSet) {
+        TableInfo tableInfo;
+        if (!writeTableInfoFile(tableFile, tableInfo)) {
+            MINISQL_LOG_ERROR("Write table info file [%s] failed!", tableFile.c_str());
+            return false;
+        }
+        _tableMap[tableInfo.name] = tableInfo;
+    }
+    return true;
+}
+
+bool CatelogManager::readCatelog() {
+    if (!deserializePrimaryDataFile()) {
+        MINISQL_LOG_ERROR("Deserialize primary data file [%s] failed!", 
+                          PRIMARY_DATA_FILE.c_str());
+        return false;
+    }
+    for (auto& tableFile : _tableInfoFileSet) {
+        TableInfo tableInfo;
+        if (!readTableInfoFile(tableFile, tableInfo)) {
+            MINISQL_LOG_ERROR("Read table info file [%s] failed!", tableFile.c_str());
+            return false;
+        }
+        _tableMap[tableInfo.name] = tableInfo;
+    }
+    return true;
+}
 
 // For serialize and deserizlize primary data file
 // well, just to make it easy
@@ -100,5 +141,6 @@ bool CatelogManager::writeTableInfoFile(const std::string& infoFile,
     }
     return true;
 }
+
 
 }

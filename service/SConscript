@@ -1,0 +1,31 @@
+# -*-Python-*-
+
+target =  'miniSQL'
+
+sources =  [
+    'SQLWorker.cpp',
+    'SQLApp.cpp',
+    ]
+
+LIBS = [
+    'logger',
+    'interpreter',
+    'catelogmanager',
+    'recordmanager',
+    'buffermanager',
+    ]
+
+LIBPATH = [
+    '../logger',
+    '../interpreter',
+    '../catelogmanager',
+    '../recordmanager',
+    '../buffermanager',
+    ]
+
+env = Environment(CPPPATH = ['../', '.'])
+env.Append(CXXFLAGS='-std=c++0x -Wall -O2 -g -gdwarf-2')
+env.Program(target = target,
+            source = sources,
+            LIBS = LIBS, 
+            LIBPATH = LIBPATH)

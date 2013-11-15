@@ -1,16 +1,16 @@
 
-#ifndef BUFFERMANAGER_HPP
-#define BUFFERMANAGER_HPP
+#ifndef _BUFFERMANAGER_H_
+#define _BUFFERMANAGER_H_
 
 #include <set>
 #include <map>
 #include <string>
 #include <cassert>
 #include "common.h"
-#include "FixedSizeChunkAllocator.hpp"
-#include "LRUCache.hpp"
-#include "Page.hpp"
-#include "DbFile.hpp"
+#include "FixedSizeChunkAllocator.h"
+#include "LRUCache.h"
+#include "Page.h"
+#include "DbFile.h"
 
 namespace miniSQL {
 
@@ -36,7 +36,7 @@ public:
 public:
     bool init();
 
-    PageID createPage(const std::string& filename);
+    PagePtr createPage(const std::string& filename);
     bool pinPage(const std::string& filename, PageID PageID);
     bool unpinPage(const std::string& filename, PageID PageID);
     bool deletePage(const std::string& filename, PageID PageID);
@@ -61,6 +61,8 @@ private:
 private:
     DECLARE_LOGGER(BufferManager);
 };
+
+typedef std::shared_ptr<BufferManager> BufferManagerPtr;
 
 }
 

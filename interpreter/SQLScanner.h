@@ -4,8 +4,8 @@
 
 #include <string>
 
-#include "Token.hpp"
-#include "logger/Logger.hpp"
+#include "Token.h"
+#include "logger/Logger.h"
 
 using std::string;
 

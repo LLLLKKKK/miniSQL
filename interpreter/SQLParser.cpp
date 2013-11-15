@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <cassert>
-#include "SQLParser.hpp"
-#include "SQLScanner.hpp"
-#include "Token.hpp"
+#include "SQLParser.h"
+#include "SQLScanner.h"
+#include "Token.h"
 
 namespace miniSQL {
 

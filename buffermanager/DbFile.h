@@ -8,9 +8,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/mman.h>
-#include "logger/Logger.hpp"
-#include "Page.hpp"
-#include "FixedSizeChunkAllocator.hpp"
+#include "logger/Logger.h"
+#include "Page.h"
+#include "FixedSizeChunkAllocator.h"
 
 namespace miniSQL {
 

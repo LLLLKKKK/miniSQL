@@ -46,4 +46,5 @@ void Record::putField(const std::string& fieldname, const std::string& field) {
     memcpy(location, field.c_str(), field.size());
 }
 
+
 }

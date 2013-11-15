@@ -1,6 +1,6 @@
 
-#include "Page.hpp"
-#include "DbFile.hpp"
+#include "Page.h"
+#include "DbFile.h"
 
 namespace miniSQL {
 

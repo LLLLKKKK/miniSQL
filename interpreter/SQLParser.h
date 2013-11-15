@@ -6,8 +6,8 @@
 #include <list>
 #include <string>
 #include "common.h"
-#include "Token.hpp"
-#include "logger/Logger.hpp"
+#include "Token.h"
+#include "logger/Logger.h"
 
 namespace miniSQL {
 
@@ -104,7 +104,7 @@ private:
     bool error_;
 
 private:
-    DECLARE_LOGGER(c);
+    DECLARE_LOGGER(SQLParser);
 };
 
 }

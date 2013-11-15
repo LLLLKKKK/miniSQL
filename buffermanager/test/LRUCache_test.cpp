@@ -2,8 +2,8 @@
 #include <cstring>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "Page.hpp"
-#include "LRUCache.hpp"
+#include "Page.h"
+#include "LRUCache.h"
 
 using std::cout;
 using namespace boost::unit_test;

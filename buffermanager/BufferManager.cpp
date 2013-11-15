@@ -3,9 +3,9 @@
 #include <fstream>
 
 #include "common.h"
-#include "logger/Logger.hpp"
-#include "BufferManager.hpp"
-#include "FixedSizeChunkAllocator.hpp"
+#include "logger/Logger.h"
+#include "BufferManager.h"
+#include "FixedSizeChunkAllocator.h"
 
 namespace miniSQL { 
 
@@ -97,17 +97,17 @@ void BufferManager::initNormalPage(PagePtr page) {
     header->prev_id = INVALID_PAGEID;
     header->next_id = INVALID_PAGEID;
     //header->type;
-    header->slot_count = 0;
-    header->free_count = 0;
-    header->reserved_count = 0;
-    header->record_start = sizeof(header);
-    header->record_end = PAGE_SIZE;
-    header->record_slot_array_start = header->record_end;
-    header->record_slot_array_end = header->record_end;
+    // header->slot_count = 0;
+    // header->free_count = 0;
+    // header->reserved_count = 0;
+    // header->record_start = sizeof(header);
+    // header->record_end = PAGE_SIZE;
+    // header->record_slot_array_start = header->record_end;
+    // header->record_slot_array_end = header->record_end;
 }
 
 // try to allocate it in the same file
-PageID BufferManager::createPage(const std::string& filename) {
+PagePtr BufferManager::createPage(const std::string& filename) {
     auto it = _fileMap.find(filename);
 
     if (it == _fileMap.end()) {
@@ -124,7 +124,7 @@ PageID BufferManager::createPage(const std::string& filename) {
                        (reinterpret_cast<char*>(header) + header->page_slot_array_start);
         auto pageID = *now_ptr;
         header->page_slot_array_start += sizeof(PageID) / sizeof(char);
-        return pageID;
+        return getPage(filename, pageID);
     }
     
     // create a new page
@@ -139,11 +139,11 @@ PageID BufferManager::createPage(const std::string& filename) {
         initNormalPage(page);
         header->file_size += _pageSize;
 
-        return pageID;
+        return page;
     }
     else {
         MINISQL_LOG_ERROR("File [%s] exceed max size!", filename.c_str());
-        return INVALID_PAGEID;
+        return nullptr;
     }
 }
 

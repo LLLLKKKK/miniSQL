@@ -2,7 +2,7 @@
 #ifndef PARSETREEPRINTER_HPP
 #define PARSETREEPRINTER_HPP
 
-#include "SQLParser.hpp"
+#include "SQLParser.h"
 
 using namespace miniSQL;
 

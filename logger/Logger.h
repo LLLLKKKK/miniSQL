@@ -1,6 +1,6 @@
 
-#ifndef LOGGER_HPP
-#define LOGGER_HPP
+#ifndef _LOGGER_H_
+#define _LOGGER_H_
 
 #include <map>
 #include <memory>

@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
-#include "TokenAccepter.hpp"
-#include "Token.hpp"
+#include "TokenAccepter.h"
+#include "Token.h"
 
 using std::cout;
 using namespace boost::unit_test;

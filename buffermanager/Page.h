@@ -61,18 +61,7 @@ struct __attribute__((packed)) PageHeader {
     PageID next_id;
 
     uint32_t type;
-
-    uint32_t slot_count;
-    uint32_t free_count;
-    uint32_t reserved_count;
-
-    uint32_t record_start;
-    uint32_t record_end;
-
-    uint32_t record_slot_array_start;
-    uint32_t record_slot_array_end;
-
-    uint32_t reserved[16];
+    uint32_t reserved[3];
 };
 
 }

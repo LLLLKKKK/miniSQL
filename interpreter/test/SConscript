@@ -18,10 +18,10 @@ LIBS = [
 env = Environment(CPPPATH = ['../', '../../'])
 
 env.Append(CXXFLAGS='-std=c++0x -Wall -O2')
-env.Program(target = '../../build/' + test_target,
+env.Program(target = test_target,
             source = test_sources,
             LIBS = LIBS, 
-            LIBPATH = ['../../build'])
+            LIBPATH = ['../', '../../logger'])
 # cp_fixture = env.Command(target = '../../df', 
 #                          source = 'fixture', 
 #                          action = 'csdfp $SOURCE $TARGET')

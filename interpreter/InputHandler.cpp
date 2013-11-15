@@ -1,4 +1,4 @@
-#include "InputHandler.hpp"
+#include "InputHandler.h"
 
 namespace miniSQL {
 

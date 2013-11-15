@@ -1,9 +1,9 @@
 #include <cctype>
 #include <cassert>
 
-#include "SQLScanner.hpp"
-#include "TokenAccepter.hpp"
-#include "InputHandler.hpp"
+#include "SQLScanner.h"
+#include "TokenAccepter.h"
+#include "InputHandler.h"
 
 namespace miniSQL {
 

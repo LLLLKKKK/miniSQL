@@ -4,8 +4,8 @@
 #include <sstream>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "SQLScanner.hpp"
-#include "InputHandler.hpp"
+#include "SQLScanner.h"
+#include "InputHandler.h"
 
 using std::cout;
 using namespace boost::unit_test;

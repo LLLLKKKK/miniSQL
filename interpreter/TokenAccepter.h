@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include "Token.hpp"
+#include "Token.h"
 
 using std::map;
 using std::vector;

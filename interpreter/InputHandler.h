@@ -5,7 +5,7 @@
 
 #include <string>
 #include <istream>
-#include "logger/Logger.hpp"
+#include "logger/Logger.h"
 
 namespace miniSQL {
 

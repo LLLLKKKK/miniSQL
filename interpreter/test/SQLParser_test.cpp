@@ -7,10 +7,10 @@
 #include <cstring>
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "ParseTreePrinter.hpp"
-#include "SQLScanner.hpp"
-#include "InputHandler.hpp"
-#include "SQLParser.hpp"
+#include "ParseTreePrinter.h"
+#include "SQLScanner.h"
+#include "InputHandler.h"
+#include "SQLParser.h"
 
 using std::cout;
 using namespace boost::unit_test;

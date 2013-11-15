@@ -1,6 +1,6 @@
 
 
-#include "DbFile.hpp"
+#include "DbFile.h"
 
 namespace miniSQL {
 
@@ -23,7 +23,7 @@ bool DbFile::validatePageID(PageID pageID) {
     return pageSize * (1 + pageID) <= header->file_size;
 }
 
-HeaderPage* DbFile::getHeader() {
+FileHeaderPage* DbFile::getHeader() {
     return reinterpret_cast<FileHeaderPage*>
         (headerPage->data);
 }

@@ -7,7 +7,7 @@
 #include <set>
 #include "common.h"
 #include "recordmanager/Record.h"
-#include "logger/Logger.hpp"
+#include "logger/Logger.h"
 
 namespace miniSQL {
 
@@ -20,15 +20,20 @@ struct TableInfo {
 };
 
 class CatelogManager {
+public:
+    CatelogManager();
+    ~CatelogManager();
 
     DISALLOW_COPY_AND_ASSIGN(CatelogManager);
 public:
-    bool init();
-    
+    bool readCatelog();
+    bool writeCatelog();
+
+private:
     bool serializePrimaryDataFile();
     bool deserializePrimaryDataFile();
-    bool readTableInfoFile(const std::string& infoFile, TableInfo& tableInfo);
-    bool writeTableInfoFile(const std::string& tablename, const TableInfo& tableInfo);
+    bool readTableInfoFile(const std::string& tableFile, TableInfo& tableInfo);
+    bool writeTableInfoFile(const std::string& tableFile, const TableInfo& tableInfo);
     
     
 private:
@@ -37,7 +42,7 @@ private:
 private:
     std::set<std::string> _tableInfoFileSet;
     std::map<std::string, TableInfo> _tableMap;
-
+    
 private:
     DECLARE_LOGGER(CatelogManager);
 };

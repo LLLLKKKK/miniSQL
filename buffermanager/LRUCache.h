@@ -5,7 +5,7 @@
 #include <list>
 #include <map>
 #include <vector>
-#include "logger/Logger.hpp"
+#include "logger/Logger.h"
 
 namespace miniSQL {
 

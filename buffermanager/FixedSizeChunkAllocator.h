@@ -1,9 +1,9 @@
 
-#ifndef FIXEDSIZECHUNKALLOCATOR_HPP
-#define FIXEDSIZECHUNKALLOCATOR_HPP
+#ifndef _FIXEDSIZECHUNKALLOCATOR_H_
+#define _FIXEDSIZECHUNKALLOCATOR_H_
 
 #include "common.h"
-#include "logger/Logger.hpp"
+#include "logger/Logger.h"
 #include <stdint.h>
 
 namespace miniSQL {
