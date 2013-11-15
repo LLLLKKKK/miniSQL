@@ -31,6 +31,18 @@ struct __attribute__((packed)) RecordPageHeader {
     uint32_t record_slot_array_end;
 };
 
+struct RecordIteraotr {
+    std::string tablename;
+    fileposition now_pos;
+    Record record;
+    bool next() {
+        return true;
+    }
+
+private:
+    PagePtr page;
+    RecordManager* recordManager;
+};
 
 class RecordManager {
 public: 
