@@ -1,8 +1,6 @@
 
 
 #include "Record.h"
-#include <cassert>
-#include <cstring>
 
 namespace miniSQL {
 
@@ -16,29 +14,15 @@ Record::~Record() {
     }
 }
 
-template<class T>
-void Record::putField(const std::string& fieldname, const T& field) {
-    auto it = _recordInfo.fieldInfoMap.find(fieldname);
-    if (it == _recordInfo.fieldInfoMap.end()) {
-        MINISQL_LOG_WARN("Record field [%s] not found", fieldname.c_str());
-        return ;
-    }
-    if (it->second.offset + sizeof(T) > _recordInfo.size) {
-        MINISQL_LOG_ERROR("[%s] too big to fill in field!", fieldname.c_str());
-        return ;
-    }
-    char* location = _recordBuffer + it->second.offset;
-    *(reinterpret_cast<T*>(location)) = field;
-}
-
 template<>
 void Record::putField(const std::string& fieldname, const std::string& field) {
     auto it = _recordInfo.fieldInfoMap.find(fieldname);
     if (it == _recordInfo.fieldInfoMap.end()) {
         MINISQL_LOG_WARN("Record field [%s] not found", fieldname.c_str());
-        return ;
+            return ;
     }
-    if (it->second.offset + field.size() > _recordInfo.size) {
+    if (field.size() != it->second.type.length || 
+        it->second.offset + field.size() > _recordInfo.size) {
         MINISQL_LOG_ERROR("[%s] too big to fill in field!", fieldname.c_str());
         return ;
     }
@@ -46,5 +30,18 @@ void Record::putField(const std::string& fieldname, const std::string& field) {
     memcpy(location, field.c_str(), field.size());
 }
 
+template<>
+void Record::getField(int pos, std::string& field) {
+    if ((size_t)pos > _recordInfo.fields.size()) {
+        MINISQL_LOG_ERROR("Field position [%d] is invalid!", pos);
+    }
+    auto fieldname = _recordInfo.fields[pos];
+    auto it = _recordInfo.fieldInfoMap.find(fieldname);
+    assert(it != _recordInfo.fieldInfoMap.end());
+    assert(it->second.offset + it->second.type.length <= _recordInfo.size);
+    
+    char* location = _recordBuffer + it->second.offset;
+    field = std::string(location, it->second.type.length);
+}
 
 }

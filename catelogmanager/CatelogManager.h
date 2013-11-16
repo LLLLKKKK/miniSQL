@@ -11,13 +11,15 @@
 
 namespace miniSQL {
 
-typedef std::map<std::string, std::string> indexMap;
-
 struct TableInfo {
     std::string name;
     RecordInfo recordInfo;
-    std::map<std::string, std::string> indexMap;    
+    std::map<std::string, std::string> indexToColumnMap;
 };
+
+typedef std::map<std::string, std::string> IndexToTableMap;
+typedef std::map<std::string, TableInfo> TableMap;
+
 
 class CatelogManager {
 public:
@@ -26,16 +28,24 @@ public:
 
     DISALLOW_COPY_AND_ASSIGN(CatelogManager);
 public:
-    bool readCatelog();
-    bool writeCatelog();
-    bool addCatelog(const TableInfo& tableInfo);
-    bool deleteCatelog(const std::string& tablename);
-    bool getCatelog(const std::string& tablename, TableInfo& tableInfo);
+    bool readTables();
+    bool writeTables();
+    bool addTable(const TableInfo& tableInfo);
+    bool deleteTable(const std::string& tablename);
+    bool getTable(const std::string& tablename, TableInfo& tableInfo);
     bool getIndex(const std::string& indexname);
     bool addIndex(const std::string& tablename, const std::string& indexname, 
                   const std::string& fieldname);
     bool deleteIndex(const std::string& indexname);
-    
+
+public:
+    const IndexToTableMap& getIndexToTableMap() const {
+        return _indexMap;
+    }
+    const TableMap& getTableMap() const {
+        return _tableMap;
+    }
+
 private:
     bool serializePrimaryDataFile();
     bool deserializePrimaryDataFile();
@@ -48,8 +58,8 @@ private:
 
 private:
     std::set<std::string> _tableInfoFileSet;
-    std::map<std::string, TableInfo> _tableMap;
-    std::map<std::string, std::string> _indexMap;
+    TableMap _tableMap;
+    IndexToTableMap _indexMap;
 
 private:
     DECLARE_LOGGER(CatelogManager);

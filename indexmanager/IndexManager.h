@@ -20,20 +20,27 @@ struct Deserial<std::string> {
     }
 };
 
-enum Comp {
-    EQUAL,
-    GREATER,
-    LESS,
-    GREATER_EQUAL,
-    LESS_EUQAL,
-};
-
 class IndexManager {
 public:
     IndexManager(BufferManagerPtr bufferManager, 
                  const std::string indexFile,
-                 const FieldInfo& fieldInfo);
-    ~IndexManager();
+                 const FieldInfo& fieldInfo) {
+
+    }
+
+    ~IndexManager() {
+    
+    }
+
+public:
+    enum Comp {
+        EQUAL,
+        GREATER,
+        LESS,
+        GREATER_EQUAL,
+        LESS_EUQAL,
+    };
+    
 public:
     template<class T>
     bool insertIndex(const T& key, const fileposition& pos);
@@ -42,7 +49,7 @@ public:
     bool deleteIndex(const T& key);
     
     template<class T, class Deserial>
-    std::pair<RecordIterator, RecordIterator> search(const T& key, Comp comp);
+    std::pair<fileposition, fileposition> search(const T& key, Comp comp);
     
 private:
     BufferManagerPtr _bufferManager;

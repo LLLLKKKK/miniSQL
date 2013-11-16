@@ -36,6 +36,8 @@ void SQLParser::syntaxError(const Token token, const char* description) {
 
 std::list<ParseNodePtr > SQLParser::parseSQL() {
     std::list<ParseNodePtr > statements;
+    error_ = false;
+
     readToken();
     while (startsStatement(nowReading)) {
         statements.push_back(parseStatement());

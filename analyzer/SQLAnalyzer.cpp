@@ -13,7 +13,7 @@ bool SQLAnalyzer::validateCreateTable(ParseNodePtr node, TableInfo& tableInfo) {
     auto typeToken = node->children.front()->token;
     assert(typeToken == TABLE);
     auto tablename = static_cast<IdentifierNode*>(node->children[1].get())->id;
-    if (_catelogManager->getCatelog(tablename, tableInfo)) {
+    if (_catelogManager->getTable(tablename, tableInfo)) {
         MINISQL_LOG_ERROR("Table [%s] has existed!", tablename.c_str());
         return false;
     }
@@ -45,6 +45,7 @@ bool SQLAnalyzer::validateCreateTable(ParseNodePtr node, TableInfo& tableInfo) {
             assert(false);
         }
         tableInfo.recordInfo.fieldInfoMap[identifierNode->id] = fieldInfo;
+        tableInfo.recordInfo.fields.push_back(identifierNode->id);
     }
     tableInfo.recordInfo.size = offsetNow;
 
@@ -56,11 +57,11 @@ bool SQLAnalyzer::validateCreateIndex(ParseNodePtr node, IndexInfo& indexInfo) {
     auto indexname = static_cast<IdentifierNode*>(node->children[2].get())->id;
     auto columnname = static_cast<IdentifierNode*>(node->children[3].get())->id;
     TableInfo tableInfo;
-    if (!_catelogManager->getCatelog(tablename, tableInfo)) {
+    if (!_catelogManager->getTable(tablename, tableInfo)) {
         MINISQL_LOG_ERROR("Table [%s] does not exist!", tablename.c_str());
         return false;
     }
-    if (tableInfo.indexMap.find(indexname) != tableInfo.indexMap.end()) {
+    if (tableInfo.indexToColumnMap.find(indexname) != tableInfo.indexToColumnMap.end()) {
         MINISQL_LOG_ERROR("Index [%s] has existed on table [%s] does not exist!", 
                           indexname.c_str(), tablename.c_str());
         return false;
@@ -83,7 +84,7 @@ bool SQLAnalyzer::validateDropTable(ParseNodePtr node, std::string& tablename) {
     assert(typeToken == TABLE);
     auto tname = static_cast<IdentifierNode*>(node->children[1].get())->id;
     TableInfo tableInfo;
-    if (!_catelogManager->getCatelog(tname, tableInfo)) {
+    if (!_catelogManager->getTable(tname, tableInfo)) {
         MINISQL_LOG_ERROR("Table [%s] does not exist!", tname.c_str());
         return false;
     }
@@ -96,7 +97,7 @@ bool SQLAnalyzer::validateDropIndex(ParseNodePtr node, std::string& indexname) {
     assert(typeToken == INDEX);
     
     auto iname = static_cast<IdentifierNode*>(node->children[1].get())->id;
-    if (_catelogManager->getIndex(iname)) {
+    if (!_catelogManager->getIndex(iname)) {
         MINISQL_LOG_ERROR("Index [%s] does not exist!", iname.c_str());
         return false;
     }
@@ -104,18 +105,68 @@ bool SQLAnalyzer::validateDropIndex(ParseNodePtr node, std::string& indexname) {
     return true;
 }
 
-bool SQLAnalyzer::validateInsert(ParseNodePtr node, Record& record) {
+bool SQLAnalyzer::validateInsert(ParseNodePtr node, const TableInfo& tableInfo,
+                                 Record& record) {
+    auto recordInfo = tableInfo.recordInfo;
+    if (recordInfo.fieldInfoMap.size() != node->children.size() - 1) {
+        MINISQL_LOG_ERROR("Doesn't match table [%s] field number!", tableInfo.name.c_str());
+        return false;        
+    }
+
+    for (size_t i = 1; i < node->children.size(); i++) {
+        auto valueNode = node->children[i];
+        auto fieldInfo = recordInfo.fieldInfoMap[recordInfo.fields[i]];
+        switch (valueNode->token) {
+        case INTEGER:
+        {
+            if (fieldInfo.type.baseType != IntType) {
+                MINISQL_LOG_ERROR("[%d] field doesn't match table [%s] field!", 
+                        i, tableInfo.name.c_str());
+                return false;
+            }
+            auto intnode = static_cast<IntNode*>(valueNode.get());
+            record.putField(recordInfo.fields[i], intnode->i);
+            break;
+        }
+        case FLOAT:
+        {
+            if (fieldInfo.type.baseType != FloatType) {
+                MINISQL_LOG_ERROR("[%d] field doesn't match table [%s] field!", 
+                        i, tableInfo.name.c_str());
+                return false;
+            }
+            auto floatnode = static_cast<FloatNode*>(valueNode.get());
+            record.putField(recordInfo.fields[i], floatnode->f_);
+            break;
+        }
+        case CHAR:
+        {
+            if (fieldInfo.type.baseType != CharType) {
+                MINISQL_LOG_ERROR("[%d] field doesn't match table [%s] field!", 
+                        i, tableInfo.name.c_str());
+                return false;
+            }
+            auto charnode = static_cast<CharNode*>(valueNode.get());
+            auto intnode = static_cast<IntNode*>(valueNode->children[0].get());
+            if (fieldInfo.type.length != intnode->i) {
+                MINISQL_LOG_ERROR("[%d] field doesn't match table [%s] field!", 
+                        i, tableInfo.name.c_str());                    
+                return false;
+            }
+            record.putField(recordInfo.fields[i], charnode->c_);
+            break;
+        }
+        default:
+            MINISQL_LOG_ERROR("Invalid value for field!");
+            return false;
+        }
+    }
     return true;
-    
 }
 
-bool SQLAnalyzer::validateDelete(ParseNodePtr node) {
-    return true;
-}
-
-bool SQLAnalyzer::validateSelect(ParseNodePtr node, TableInfo& tableInfo) {
+bool SQLAnalyzer::validateDelete(ParseNodePtr node, TableInfo& tableInfo) {
     auto tablename = static_cast<IdentifierNode*>(node->children[0].get())->id;
-    if (_catelogManager->getCatelog(tablename, tableInfo)) {
+    if (_catelogManager->getTable(tablename, tableInfo)) {
         MINISQL_LOG_ERROR("Table [%s] does not exist!", tablename.c_str());
         return false;
     }
@@ -123,6 +174,28 @@ bool SQLAnalyzer::validateSelect(ParseNodePtr node, TableInfo& tableInfo) {
         return true;
     }
     auto condition = node->children[1];
+
+    return validateCondition(condition, tableInfo);
+}
+
+bool SQLAnalyzer::validateSelect(ParseNodePtr node, TableInfo& tableInfo) {
+    auto tablename = static_cast<IdentifierNode*>(node->children[0].get())->id;
+    if (_catelogManager->getTable(tablename, tableInfo)) {
+        MINISQL_LOG_ERROR("Table [%s] does not exist!", tablename.c_str());
+        return false;
+    }
+    if (node->children.size() == 1) {
+        return true;
+    }
+    auto condition = node->children[1];
+
+    return validateCondition(condition, tableInfo);
+}
+
+bool SQLAnalyzer::validateCondition(ParseNodePtr condition, const TableInfo& tableInfo) {
+    // now they're all 'AND'
+    condition = condition->children[0];
+
     for (auto it = condition->children.begin(); it != condition->children.end(); it++) {
         auto field = static_cast<IdentifierNode*>((*it)->children[0].get());
         auto fieldIt = tableInfo.recordInfo.fieldInfoMap.find(field->id);

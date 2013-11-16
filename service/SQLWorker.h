@@ -6,11 +6,18 @@
 #include "logger/Logger.h"
 #include "interpreter/SQLParser.h"
 #include "buffermanager/BufferManager.h"
-#include "recordmanager/RecordManager.h"
 #include "catelogmanager/CatelogManager.h"
 #include "analyzer/SQLAnalyzer.h"
 
 namespace miniSQL {
+
+class IndexManager;
+class RecordManager;
+
+typedef std::unique_ptr<RecordManager> RecordManagerPtr;
+typedef std::unique_ptr<IndexManager> IndexManagerPtr;
+typedef std::map<std::string, RecordManagerPtr> RecordManagerMap;
+typedef std::map<std::string, IndexManagerPtr> IndexManagerMap;
 
 class SQLWorker {
 public:
@@ -27,11 +34,15 @@ private:
     bool startCreate(ParseNodePtr node);
     bool startDrop(ParseNodePtr node);
     bool startSelect(ParseNodePtr node);
-    
+    bool startInsert(ParseNodePtr node);
+    bool startDelete(ParseNodePtr node);
+
 private:
     BufferManagerPtr _bufferManager;
     CatelogManager _catelogManager;
     SQLAnalyzer _analyzer;
+    RecordManagerMap _recordManagerMap;
+    IndexManagerMap _indexManagerMap;
 
 private:
     DECLARE_LOGGER(SQLWorker);

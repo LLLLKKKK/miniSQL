@@ -56,10 +56,11 @@ PagePtr DbFile::createPage(PageID pageID) {
     
 PagePtr DbFile::readPage(PageID pageID) {
     void* data = allocator->allocate(pageSize);
-    if (::read(fd, data, pageSize) < 0) {
+    if (::pread(fd, data, pageSize, pageID * pageSize) < pageSize) {
         MINISQL_LOG_ERROR( "read page failed for file %s page %u, %s", 
                           filename.c_str(), pageID, strerror(errno));
-        return nullptr;            
+        allocator->free(data);
+        return nullptr;
     }
     return PagePtr(new Page { data, pageID, false, this });
 }
@@ -68,7 +69,7 @@ bool DbFile::writebackPage(Page* page) {
     if (!page->isDirty) {
         return true;
     }
-    if (::write(fd, page->data, pageSize) < 0) {
+    if (::pwrite(fd, page->data, pageSize, page->id * pageSize) < pageSize) {
         MINISQL_LOG_ERROR( "write failed for file %s page %u, %s",
                           filename.c_str(), page->id, strerror(errno));
         return false;

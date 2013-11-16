@@ -13,10 +13,10 @@ CatelogManager::CatelogManager() {
 }
 
 CatelogManager::~CatelogManager() {
-    writeCatelog();
+    writeTables();
 }
 
-bool CatelogManager::writeCatelog() {
+bool CatelogManager::writeTables() {
     if (!serializePrimaryDataFile()) {
         MINISQL_LOG_ERROR("Serialize primary data file [%s] failed!", 
                           PRIMARY_DATA_FILE.c_str());
@@ -31,7 +31,7 @@ bool CatelogManager::writeCatelog() {
     return true;
 }
 
-bool CatelogManager::readCatelog() {
+bool CatelogManager::readTables() {
     if (!deserializePrimaryDataFile()) {
         MINISQL_LOG_ERROR("Deserialize primary data file [%s] failed!", 
                           PRIMARY_DATA_FILE.c_str());
@@ -48,7 +48,7 @@ bool CatelogManager::readCatelog() {
     return true;
 }
 
-bool CatelogManager::addCatelog(const TableInfo& tableInfo) {
+bool CatelogManager::addTable(const TableInfo& tableInfo) {
     if (_tableInfoFileSet.find(tableInfo.name) != _tableInfoFileSet.end()) {
         MINISQL_LOG_ERROR("Table [%s] has already exists!",
                           tableInfo.name.c_str());
@@ -65,7 +65,7 @@ bool CatelogManager::addCatelog(const TableInfo& tableInfo) {
     return true;
 }
 
-bool CatelogManager::deleteCatelog(const std::string& tablename) {
+bool CatelogManager::deleteTable(const std::string& tablename) {
     if (_tableInfoFileSet.find(tablename) == _tableInfoFileSet.end()) {
         MINISQL_LOG_ERROR("Table [%s] does not exists!",
                           tablename.c_str());
@@ -82,7 +82,7 @@ bool CatelogManager::deleteCatelog(const std::string& tablename) {
     return true;
 }
 
-bool CatelogManager::getCatelog(const std::string& tablename, TableInfo& tableInfo) {
+bool CatelogManager::getTable(const std::string& tablename, TableInfo& tableInfo) {
     if (_tableInfoFileSet.find(tablename) == _tableInfoFileSet.end()) {
         MINISQL_LOG_ERROR("Table [%s] does not exists!",
                           tablename.c_str());
@@ -153,13 +153,14 @@ bool CatelogManager::readTableInfoFile(const std::string& infoFile, TableInfo& t
     while (indexNum--) {
         std::string index, field;
         ifs >> index >> field;
-        tableInfo.indexMap[index] = field;
+        tableInfo.indexToColumnMap[index] = field;
         _indexMap[index] = tableInfo.name;
     }
     int fieldNum;
     uint32_t size;
     ifs >> fieldNum >> size;
     tableInfo.recordInfo.size = size;
+
     while (fieldNum--) {
         std::string field;
         int baseType, length;
@@ -167,6 +168,7 @@ bool CatelogManager::readTableInfoFile(const std::string& infoFile, TableInfo& t
         ifs >> field >> baseType >> length >> offset;
         FieldType type { static_cast<FieldBaseType>(baseType), static_cast<uint8_t>(length) };
         tableInfo.recordInfo.fieldInfoMap[field] ={ type, offset };
+        tableInfo.recordInfo.fields.push_back(field);
     }
     return true;
 }
@@ -181,20 +183,22 @@ bool CatelogManager::writeTableInfoFile(const std::string& infoFile,
         return false;
     }
     ofs << tableInfo.name << '\n';
-    ofs << tableInfo.indexMap.size() << '\n';
-    for (auto it = tableInfo.indexMap.begin(); it != tableInfo.indexMap.end(); it++) {
+    ofs << tableInfo.indexToColumnMap.size() << '\n';
+    for (auto it = tableInfo.indexToColumnMap.begin(); 
+         it != tableInfo.indexToColumnMap.end(); it++) {
         ofs << it->first << ' ' << it->second << '\n';
     }
 
     ofs << tableInfo.recordInfo.fieldInfoMap.size() << ' '
         << tableInfo.recordInfo.size << '\n';
 
-    for (auto it = tableInfo.recordInfo.fieldInfoMap.begin();
-         it != tableInfo.recordInfo.fieldInfoMap.end(); it++) {
-        ofs << it->first << ' ' 
-            << (int) it->second.type.baseType << ' ' 
-            << (int) it->second.type.length << ' ' 
-            << it->second.offset << '\n';
+    for (auto it = tableInfo.recordInfo.fields.begin();
+         it != tableInfo.recordInfo.fields.end(); it++) {
+        auto fieldInfo = tableInfo.recordInfo.fieldInfoMap.find(*it);
+        ofs << *it << ' ' 
+            << (int) fieldInfo->second.type.baseType << ' ' 
+            << (int) fieldInfo->second.type.length << ' ' 
+            << fieldInfo->second.offset << '\n';
     }
     return true;
 }
@@ -214,7 +218,7 @@ bool CatelogManager::addIndex(const std::string& tablename, const std::string& i
         MINISQL_LOG_ERROR( "Table [%s] does not exist!", tablename.c_str());
         return false;
     }
-    it->second.indexMap[indexname] = fieldname;
+    it->second.indexToColumnMap[indexname] = fieldname;
     _indexMap[indexname] = tablename;
     return false;
 }
@@ -230,7 +234,7 @@ bool CatelogManager::deleteIndex(const std::string& indexname) {
         MINISQL_LOG_ERROR( "Table [%s] does not exist!", it->first.c_str());
         return false;
     }
-    tIt->second.indexMap.erase(tIt->second.indexMap.find(indexname));
+    tIt->second.indexToColumnMap.erase(tIt->second.indexToColumnMap.find(indexname));
 
     return true;
 }

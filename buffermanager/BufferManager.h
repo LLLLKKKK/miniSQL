@@ -41,6 +41,7 @@ public:
     bool unpinPage(const std::string& filename, PageID PageID);
     bool deletePage(const std::string& filename, PageID PageID);
     PagePtr getPage(const std::string& filename, PageID pageID);
+    bool validatePage(const std::string& filename, PageID pageID);
 
     DbFilePtr loadDbFile(const std::string& filename, bool isNew = false);
     DbFilePtr createDbFile(const std::string& filename);

@@ -97,13 +97,6 @@ void BufferManager::initNormalPage(PagePtr page) {
     header->prev_id = INVALID_PAGEID;
     header->next_id = INVALID_PAGEID;
     //header->type;
-    // header->slot_count = 0;
-    // header->free_count = 0;
-    // header->reserved_count = 0;
-    // header->record_start = sizeof(header);
-    // header->record_end = PAGE_SIZE;
-    // header->record_slot_array_start = header->record_end;
-    // header->record_slot_array_end = header->record_end;
 }
 
 // try to allocate it in the same file
@@ -114,7 +107,7 @@ PagePtr BufferManager::createPage(const std::string& filename) {
         MINISQL_LOG_ERROR("invalid filename %s!", filename.c_str());
         return INVALID_PAGEID;
     }
-
+    
     auto file = it->second;
     auto header = file->getHeader();
     
@@ -129,7 +122,7 @@ PagePtr BufferManager::createPage(const std::string& filename) {
     
     // create a new page
     if (_maxDbFileSize - _pageSize > file->size) {
-
+        
         PageID pageID = ++header->page_end;
         PagePtr page = file->createPage(pageID);
         if (!page) {
@@ -137,7 +130,8 @@ PagePtr BufferManager::createPage(const std::string& filename) {
             return INVALID_PAGEID;
         }
         initNormalPage(page);
-        header->file_size += _pageSize;
+
+        _cache.put(make_pair(filename, pageID), page);
 
         return page;
     }
@@ -154,7 +148,7 @@ PagePtr BufferManager::getPage(const std::string& filename, PageID pageID) {
     }
 
     auto it = _fileMap.find(filename);
-
+    
     if (it == _fileMap.end()) {
         MINISQL_LOG_ERROR( "invalid pageID %u, can't find file!", pageID);
         return nullptr;
@@ -168,7 +162,7 @@ PagePtr BufferManager::getPage(const std::string& filename, PageID pageID) {
 
     page = file->readPage(pageID);
     if ( ! page) {
-        MINISQL_LOG_ERROR( "Create page %u failed!", pageID);
+        MINISQL_LOG_ERROR( "Read page %u failed!", pageID);
         return nullptr;
     }
     
@@ -215,6 +209,24 @@ bool BufferManager::deletePage(const std::string& filename, PageID pageID) {
     }
     _cache.invalidate(make_pair(filename, pageID));
     
+    return true;
+}
+
+bool BufferManager::validatePage(const std::string& filename, PageID pageID) {
+    if (pageID == INVALID_PAGEID) {
+        return false;
+    }
+    
+    auto it = _fileMap.find(filename);
+    if (it == _fileMap.end()) {
+        return false;
+    }
+    
+    DbFilePtr file = it->second;
+    if (! file->validatePageID(pageID)) {
+        return false;
+    }
+
     return true;
 }
 

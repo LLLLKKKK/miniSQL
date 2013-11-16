@@ -14,10 +14,16 @@
 namespace miniSQL {
 
 const uint16_t RECORD_META = 0x1234;
-const uint16_t RECORD_VERSION = 0x0000;
-const uint16_t RECORD_DELETED = 0x0101;
+
+typedef uint16_t recordversion;
+
+const recordversion RECORD_EMPTY = 0x0000;
+const recordversion RECORD_VERSION = 0x0001;
+const recordversion RECORD_DELETED = 0x8000;
 
 typedef uint64_t fileposition;
+
+const fileposition INVALID_FILEPOSITION = 0;
 
 struct __attribute__((packed)) RecordPageHeader {
     struct PageHeader header;
@@ -31,18 +37,7 @@ struct __attribute__((packed)) RecordPageHeader {
     uint32_t record_slot_array_end;
 };
 
-struct RecordIteraotr {
-    std::string tablename;
-    fileposition now_pos;
-    Record record;
-    bool next() {
-        return true;
-    }
-
-private:
-    PagePtr page;
-    RecordManager* recordManager;
-};
+class RecordManager;
 
 class RecordManager {
 public: 
@@ -53,31 +48,46 @@ public:
 public:
     bool init(bool isNew = false);
     
-    bool getRecord(const fileposition& position, 
-                   Record& record);
-    bool insertRecord(const Record& record, fileposition& pos);
+    fileposition getRecordBeginPos() const {
+        return _beginPos;
+    }
+
+    bool getRecord(const fileposition& position, Record& record);
+    bool insertRecord(const Record& record);
     bool deleteRecord(const fileposition& position);
-    
+
+    void moveToNextPos(fileposition& pos, recordversion version);
+
 private:
     PageID getPageID(fileposition pos) {
         return static_cast<uint32_t>(pos >> 32);
     }
     
     uint32_t getPageOffset(fileposition pos) {
-    return static_cast<uint32_t>(pos);
+        return static_cast<uint32_t>(pos);
     }
-    
-    RecordPageHeader* getRecordPageHeader() {
-        return reinterpret_cast<RecordPageHeader*>(_currentPage->data);
+
+    fileposition getFilePosition(PageID id, uint32_t offset) {
+        return (static_cast<uint64_t>(id) << 32) + offset;
     }
-    
+
+    RecordPageHeader* getRecordPageHeader(PagePtr page) {
+        return reinterpret_cast<RecordPageHeader*>(page->data);
+    }
+
+    uint16_t getRecordMeta(fileposition& pos);    
     void initRecordPageHeader(RecordPageHeader* header);
+    bool insertRecord(const Record& record, fileposition& pos);
+
+    PagePtr createPage();
+
 private:
     BufferManagerPtr _bufferManager;
     std::string _recordFile;
     RecordInfo _recordInfo;
-    PagePtr _currentPage;
-
+    fileposition _nowPos;
+    fileposition _beginPos;
+    
 private:
     DECLARE_LOGGER(RecordManager);
 };

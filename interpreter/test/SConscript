@@ -24,6 +24,6 @@ env.Program(target = test_target,
             LIBPATH = ['../', '../../logger'])
 
 test = env.Command(target = 'test', 
-                   source = [ ],
-                   action = './interpreter_test')
+                   source = [ test_target ],
+                   action = './interpreter_test --log_level=message')
 env.AlwaysBuild(test)

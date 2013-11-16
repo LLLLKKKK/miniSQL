@@ -13,8 +13,8 @@ BOOST_AUTO_TEST_CASE( catelogReadAndWrite )
 {
     {
         TableInfo tableInfo;
-        tableInfo.indexMap["indexA"] = "columnA";
-        tableInfo.indexMap["indexB"] = "columnB";
+        tableInfo.indexToColumnMap["indexA"] = "columnA";
+        tableInfo.indexToColumnMap["indexB"] = "columnB";
         tableInfo.name = "tableA";
         tableInfo.recordInfo.size = 20;
         FieldInfo fieldInfo;
@@ -31,19 +31,23 @@ BOOST_AUTO_TEST_CASE( catelogReadAndWrite )
         fieldInfo.type.length = 10;
         tableInfo.recordInfo.fieldInfoMap["columnC"] = fieldInfo;
 
+        tableInfo.recordInfo.fields.push_back("columnB");
+        tableInfo.recordInfo.fields.push_back("columnC");
+        tableInfo.recordInfo.fields.push_back("columnA");
+
         CatelogManager catelogManager;
-        catelogManager.readCatelog();
-        catelogManager.addCatelog(tableInfo);
+        BOOST_CHECK(catelogManager.readTables());
+        catelogManager.addTable(tableInfo);
     }
 
     {
         TableInfo tableInfo;
         CatelogManager catelogManager;
-        BOOST_CHECK(catelogManager.readCatelog());
-        catelogManager.getCatelog("tableA", tableInfo);
+        BOOST_CHECK(catelogManager.readTables());
+        catelogManager.getTable("tableA", tableInfo);
 
-        BOOST_CHECK_EQUAL(tableInfo.indexMap["indexA"], "columnA");
-        BOOST_CHECK_EQUAL(tableInfo.indexMap["indexB"], "columnB");
+        BOOST_CHECK_EQUAL(tableInfo.indexToColumnMap["indexA"], "columnA");
+        BOOST_CHECK_EQUAL(tableInfo.indexToColumnMap["indexB"], "columnB");
         BOOST_CHECK_EQUAL(tableInfo.name, "tableA");
         BOOST_CHECK_EQUAL(tableInfo.recordInfo.size, 20);
 

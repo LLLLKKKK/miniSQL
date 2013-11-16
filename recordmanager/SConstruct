@@ -2,7 +2,7 @@
 
 target = [
     'SConscript',
-#    'test/SConscript',
+    'test/SConscript',
     ]
 
 SConscript(target)

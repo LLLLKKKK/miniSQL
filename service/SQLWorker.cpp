@@ -4,6 +4,8 @@
 #include "SQLWorker.h"
 #include "interpreter/InputHandler.h"
 #include "interpreter/SQLScanner.h"
+#include "recordmanager/RecordManager.h"
+#include "indexmanager/IndexManager.h"
 
 namespace miniSQL {
 
@@ -14,25 +16,45 @@ SQLWorker::SQLWorker() :
 {  }
 
 SQLWorker::~SQLWorker() {
-    _catelogManager.writeCatelog();
+    _catelogManager.writeTables();
 }
 
 std::list<ParseNodePtr> SQLWorker::parse(std::istream* stream) {
     InputHandler inputHandler(stream);
     SQLScanner scanner(&inputHandler);
     SQLParser parser(&scanner);
-    return parser.parseSQL();
+    auto statements = parser.parseSQL();
+    if (parser.isError()) {
+        return std::list<ParseNodePtr>();
+    } else {
+        return statements;
+    }
 }
 
 
 bool SQLWorker::init() {
     _bufferManager = std::make_shared<BufferManager>();
     
-    if (!_catelogManager.readCatelog()) {
+    if (!_catelogManager.readTables()) {
         MINISQL_LOG_ERROR("CatelogManager init failed!");
         return false;
     }
-        
+    
+    auto tableMap = _catelogManager.getTableMap();
+    for (auto& table : tableMap) {
+        auto tableInfo = table.second;
+        _recordManagerMap[tableInfo.name] = RecordManagerPtr(
+                new RecordManager(_bufferManager, tableInfo.name + ".table", 
+                        tableInfo.recordInfo));
+    }
+    
+    auto indexToTableMap = _catelogManager.getIndexToTableMap();
+    for (auto& index : indexToTableMap) {
+        auto fieldInfo = tableMap[index.second].recordInfo.fieldInfoMap[index.first];
+        _indexManagerMap[index.first] = IndexManagerPtr(
+                new IndexManager(_bufferManager, index.first + ".index", fieldInfo));
+    }
+
     return true;
 }
 
@@ -44,7 +66,7 @@ bool SQLWorker::startCreate(ParseNodePtr statement) {
             MINISQL_LOG_ERROR("Validate create table statement failed!");
             return false;
         }
-        _catelogManager.addCatelog(tableInfo);
+        _catelogManager.addTable(tableInfo);
         _bufferManager->loadDbFile(tableInfo.name, true);
     }
     // index
@@ -70,7 +92,7 @@ bool SQLWorker::startDrop(ParseNodePtr statement) {
             MINISQL_LOG_ERROR("Validate drop table statement failed!");
             return false;
         }
-        return _catelogManager.deleteCatelog(tablename);
+        return _catelogManager.deleteTable(tablename);
     }
     // index
     else {
@@ -84,12 +106,37 @@ bool SQLWorker::startDrop(ParseNodePtr statement) {
     return true;
 }
 
+bool SQLWorker::startInsert(ParseNodePtr statement) {
+    auto tablename = static_cast<IdentifierNode*>(statement->children[0].get())->id;
+    TableInfo tableInfo;
+    if (!_catelogManager.getTable(tablename, tableInfo)) {
+        MINISQL_LOG_ERROR("Table [%s] does not exist!", tablename.c_str());
+        return false;
+    }
+    Record record(tableInfo.recordInfo);
+    if (!_analyzer.validateInsert(statement, tableInfo, record)) {
+        MINISQL_LOG_ERROR("Validate insert statement failed!");
+        return false;
+    }
+    return _recordManagerMap[tablename]->insertRecord(record);
+}
+
+bool SQLWorker::startDelete(ParseNodePtr statement) {
+    TableInfo tableInfo;
+    if (!_analyzer.validateSelect(statement, tableInfo)) {
+        MINISQL_LOG_ERROR("Validate select statement failed!");
+        return false;
+    }
+    return true;
+}
+
 bool SQLWorker::startSelect(ParseNodePtr statement) {
     TableInfo tableInfo;
     if (!_analyzer.validateSelect(statement, tableInfo)) {
         MINISQL_LOG_ERROR("Validate select statement failed!");
         return false;
     }
+    return true;
 }
 
 bool SQLWorker::start(std::istream* stream) {
@@ -111,11 +158,10 @@ bool SQLWorker::start(std::istream* stream) {
             return startDrop(statement);
         case SELECT:
             return startSelect(statement);
-            break;
         case DELETE:
-            break;
+            return startDelete(statement);
         case INSERT:
-            break;
+            return startInsert(statement);
         default:
             return false;
         }

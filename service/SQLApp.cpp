@@ -12,7 +12,7 @@ int main() {
     }
 
     while (true) {
-        std::cout<< "LK miniSQL>";
+        std::cout<< "LK miniSQL> ";
         std::string line;
         std::getline(std::cin, line);
         std::stringstream stream(line);
