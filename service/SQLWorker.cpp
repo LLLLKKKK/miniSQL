@@ -45,9 +45,10 @@ bool SQLWorker::init() {
     auto tableMap = _catelogManager.getTableMap();
     for (auto& table : tableMap) {
         auto tableInfo = table.second;
-        _recordManagerMap[tableInfo.name] = RecordManagerPtr(
-                new RecordManager(_bufferManager, tableInfo.name + ".table", 
-                        tableInfo.recordInfo));
+        auto recordManager = RecordManagerPtr(new RecordManager
+                (_bufferManager, tableInfo.name + ".table", tableInfo.recordInfo));
+        recordManager->init();
+        _recordManagerMap[tableInfo.name] = std::move(recordManager);
     }
     
     auto indexToTableMap = _catelogManager.getIndexToTableMap();
@@ -68,8 +69,15 @@ bool SQLWorker::startCreate(ParseNodePtr statement) {
             MINISQL_LOG_ERROR("Validate create table statement failed!");
             return false;
         }
-        _catelogManager.addTable(tableInfo);
-        _bufferManager->loadDbFile(tableInfo.name + ".table", true);
+        auto recordManager = RecordManagerPtr(new RecordManager
+                (_bufferManager, tableInfo.name + ".table", tableInfo.recordInfo));
+        if (recordManager->init(true)) {
+            _catelogManager.addTable(tableInfo);
+        } else {
+            MINISQL_LOG_ERROR("Init Record Manger failed!");
+            return false;
+        }
+        _recordManagerMap[tableInfo.name] = std::move(recordManager);
     }
     // index
     else {
@@ -133,7 +141,8 @@ bool SQLWorker::startInsert(ParseNodePtr statement) {
 
 bool SQLWorker::startDelete(ParseNodePtr statement) {
     TableInfo tableInfo;
-    if (!_analyzer.validateSelect(statement, tableInfo)) {
+    std::vector<ParseNodePtr> condition;
+    if (!_analyzer.validateSelect(statement, tableInfo, condition)) {
         MINISQL_LOG_ERROR("Validate select statement failed!");
         return false;
     }
@@ -142,9 +151,20 @@ bool SQLWorker::startDelete(ParseNodePtr statement) {
 
 bool SQLWorker::startSelect(ParseNodePtr statement) {
     TableInfo tableInfo;
-    if (!_analyzer.validateSelect(statement, tableInfo)) {
+    std::vector<ParseNodePtr> condition;
+    if (!_analyzer.validateSelect(statement, tableInfo, condition)) {
         MINISQL_LOG_ERROR("Validate select statement failed!");
         return false;
+    }
+    auto& recordManager = _recordManagerMap[tableInfo.name];
+    auto recordPos = recordManager->getRecordBeginPos();
+    Record record(tableInfo.recordInfo);
+    while (recordPos != INVALID_FILEPOSITION) {
+        recordManager->getRecord(recordPos, record);
+        if (checkCondition(record, condition)) {
+            std::cout << record << '\n';
+        }
+        recordManager->moveToNextPos(recordPos, RECORD_VERSION);
     }
     return true;
 }
@@ -167,17 +187,81 @@ bool SQLWorker::start(std::istream* stream) {
             return start(&file);
         }
         case CREATE:
-            return startCreate(statement);
+            startCreate(statement);
+            break;
         case DROP:
-            return startDrop(statement);
+            startDrop(statement);
+            break;
         case SELECT:
-            return startSelect(statement);
+            startSelect(statement);
+            break;
         case DELETE:
-            return startDelete(statement);
+            startDelete(statement);
+            break;
         case INSERT:
-            return startInsert(statement);
+            startInsert(statement);
+            break;
         default:
             return false;
+        }
+    }
+    return true;
+}
+
+
+template<class T>
+static bool Compare(const T& a, const T& b, Token token) {
+    switch (token) {
+    case GREATER:
+        return a > b;
+    case LESS:
+        return a < b;
+    case GREATER_EQUAL:
+        return a >= b;
+    case LESS_EQUAL:
+        return a <= b;
+    case EQUAL:
+        return a == b;
+    case NOT_EQUAL:
+        return a != b;
+    default:
+        return false;
+    }
+}
+
+bool SQLWorker::checkCondition(const Record& record, 
+                               const std::vector<ParseNodePtr>& condition){
+    for (auto& cond : condition) {
+        auto field = static_cast<IdentifierNode*>(cond->children[0].get())->id;
+        auto oprand = cond->token;
+        auto value = cond->children[1];
+        auto recordInfo = record.getRecordInfo();
+        auto it = recordInfo.fieldInfoMap.find(field);
+        switch(it->second.type.baseType) {
+        case FloatType:
+        {
+            auto compValue = static_cast<FloatNode*>(value.get())->f_;
+            float recordValue;
+            record.getField(field, recordValue);
+            if (! Compare(recordValue, compValue, oprand)) return false;
+            break;
+        }
+        case IntType:
+        {
+            auto compValue = static_cast<IntNode*>(value.get())->i;
+            int recordValue;
+            record.getField(field, recordValue);
+            if (! Compare(recordValue, compValue, oprand)) return false;
+            break;
+        }
+        case CharType:
+        {
+            auto compValue = static_cast<CharNode*>(value.get())->c_;
+            std::string recordValue;
+            record.getField(field, recordValue);
+            if (! Compare(recordValue, compValue, oprand)) return false;
+            break;
+        }
         }
     }
     return true;

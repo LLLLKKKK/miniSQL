@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstring>
 #include <cassert>
+#include <iostream>
 #include "common.h"
 #include "logger/Logger.h"
 
@@ -71,11 +72,16 @@ public:
     }
 
     template<class T>
-    void getField(int pos, T& field) {
+    void getField(int pos, T& field) const {
         if (pos > _recordInfo.fields.size()) {
             MINISQL_LOG_ERROR("Field position [%d] is invalid!", pos);
         }
         auto fieldname = _recordInfo.fields[pos];
+        getField(fieldname, field);
+    }
+
+    template<class T>
+    void getField(const std::string& fieldname, T& field) const {
         auto it = _recordInfo.fieldInfoMap.find(fieldname);
         assert(it != _recordInfo.fieldInfoMap.end());
         assert(it->second.offset + sizeof(T) <= _recordInfo.size);
@@ -91,6 +97,12 @@ public:
     void storeFields(void* memory) const {
         memcpy(memory, _recordBuffer, _recordInfo.size);
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Record& record);
+
+    const RecordInfo& getRecordInfo() const {
+        return _recordInfo;
+    }
     
 private:
     char* _recordBuffer;
@@ -102,7 +114,7 @@ template<>
 void Record::putField(const std::string& fieldname, const std::string& field);
 
 template<>
-void Record::getField(int pos, std::string& field);
+void Record::getField(const std::string& fieldname, std::string& field) const;
 
 };
 

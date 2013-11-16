@@ -18,14 +18,32 @@ bool RecordManager::init(bool isNew) {
                           _recordFile.c_str());        
         return false;
     }
-    
-    auto page = createPage();
+
+    PagePtr page;
+    if (isNew) {
+        page = createPage();
+    } else {
+        page = _bufferManager->getPage(_recordFile, PageID(1));
+    }
     auto header = getRecordPageHeader(page);
 
-    _beginPos = getFilePosition(header->header.my_id, header->record_start);
-    _nowPos = _beginPos;
+    _nowPos = getFilePosition(header->header.my_id, header->record_start);
+    if (getRecordMeta(_nowPos) != RECORD_EMPTY) {
+        moveToNextPos(_nowPos, RECORD_EMPTY);
+    }
 
     return true;
+}
+
+fileposition RecordManager::getRecordBeginPos(){
+    auto page = _bufferManager->getPage(_recordFile, PageID(1));
+    auto header = getRecordPageHeader(page);
+    auto beginPos = getFilePosition(header->header.my_id, header->record_start);
+    
+    if (getRecordMeta(beginPos) != RECORD_VERSION) {
+        moveToNextPos(beginPos, RECORD_VERSION);
+    }
+    return beginPos;
 }
 
 PagePtr RecordManager::createPage() {
@@ -80,17 +98,17 @@ void RecordManager::moveToNextPos(fileposition& pos, recordversion version) {
         if (newPage) {
             offset = header->record_start;
         } else {
-            offset += _recordInfo.size;
+            offset += _recordInfo.size + 4;
         }
 
         pos = getFilePosition(pageID, offset);
 
-        while (offset + _recordInfo.size <= header->record_slot_array_start) {
+        while (offset + _recordInfo.size + 4 <= header->record_slot_array_start) {
             if (getRecordMeta(pos) == version) {
                 return ;
             }
-            pos += _recordInfo.size;
-            offset += _recordInfo.size;
+            pos += _recordInfo.size + 4;
+            offset += _recordInfo.size + 4;
         }
 
         newPage = true;
@@ -101,7 +119,7 @@ void RecordManager::moveToNextPos(fileposition& pos, recordversion version) {
     return ;
 }
 
-uint16_t RecordManager::getRecordMeta(fileposition& pos) {
+uint16_t RecordManager::getRecordMeta(fileposition& pos){
     auto page = _bufferManager->getPage(_recordFile, getPageID(pos));
     auto offset = getPageOffset(pos);
     auto now_ptr = static_cast<char*>(page->data) + offset;
@@ -127,7 +145,7 @@ bool RecordManager::insertRecord(const Record& record, fileposition& pos) {
     *twobyte_ptr++ = RECORD_VERSION;
     now_ptr = reinterpret_cast<char*>(twobyte_ptr);
     record.storeFields(now_ptr);
-    header->record_end += _recordInfo.size;
+    header->record_end += _recordInfo.size + 4;
     
     return true;
 }

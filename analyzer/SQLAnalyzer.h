@@ -33,12 +33,14 @@ public:
     bool validateDropTable(ParseNodePtr node, std::string& tablename);
     bool validateDropIndex(ParseNodePtr node, std::string& indexname);
     bool validateInsert(ParseNodePtr node, const TableInfo& tableInfo, Record& record);
-    bool validateSelect(ParseNodePtr node, TableInfo& tableInfo);
+    bool validateSelect(ParseNodePtr node, TableInfo& tableInfo, 
+                        std::vector<ParseNodePtr>& condition);
     bool validateDelete(ParseNodePtr node, TableInfo& tableInfo);
 
     AnalyzerError getLastError() const;
 private:
-    bool validateCondition(ParseNodePtr condition, const TableInfo& tableInfo);
+    bool validateCondition(const std::vector<ParseNodePtr>& condition, 
+                           const TableInfo& tableInfo);
 
 private:
     CatelogManager *_catelogManager;

@@ -117,7 +117,7 @@ bool SQLAnalyzer::validateInsert(ParseNodePtr node, const TableInfo& tableInfo,
 
     for (size_t i = 1; i < node->children.size(); i++) {
         auto valueNode = node->children[i];
-        auto fieldInfo = recordInfo.fieldInfoMap[recordInfo.fields[i]];
+        auto fieldInfo = recordInfo.fieldInfoMap[recordInfo.fields[i - 1]];
         switch (valueNode->token) {
         case INTEGER:
         {
@@ -127,7 +127,7 @@ bool SQLAnalyzer::validateInsert(ParseNodePtr node, const TableInfo& tableInfo,
                 return false;
             }
             auto intnode = static_cast<IntNode*>(valueNode.get());
-            record.putField(recordInfo.fields[i], intnode->i);
+            record.putField(i - 1, intnode->i);
             break;
         }
         case FLOAT:
@@ -138,7 +138,7 @@ bool SQLAnalyzer::validateInsert(ParseNodePtr node, const TableInfo& tableInfo,
                 return false;
             }
             auto floatnode = static_cast<FloatNode*>(valueNode.get());
-            record.putField(recordInfo.fields[i], floatnode->f_);
+            record.putField(i - 1, floatnode->f_);
             break;
         }
         case CHAR:
@@ -149,13 +149,12 @@ bool SQLAnalyzer::validateInsert(ParseNodePtr node, const TableInfo& tableInfo,
                 return false;
             }
             auto charnode = static_cast<CharNode*>(valueNode.get());
-            auto intnode = static_cast<IntNode*>(valueNode->children[0].get());
-            if (fieldInfo.type.length != intnode->i) {
+            if (fieldInfo.type.length != charnode->c_.size()) {
                 MINISQL_LOG_ERROR("[%d] field doesn't match table [%s] field!", 
                         i, tableInfo.name.c_str());                    
                 return false;
             }
-            record.putField(recordInfo.fields[i], charnode->c_);
+            record.putField(i - 1, charnode->c_);
             break;
         }
         default:
@@ -175,30 +174,29 @@ bool SQLAnalyzer::validateDelete(ParseNodePtr node, TableInfo& tableInfo) {
     if (node->children.size() == 1) {
         return true;
     }
-    auto condition = node->children[1];
+    auto condition = node->children[1]->children;
 
     return validateCondition(condition, tableInfo);
 }
 
-bool SQLAnalyzer::validateSelect(ParseNodePtr node, TableInfo& tableInfo) {
+bool SQLAnalyzer::validateSelect(ParseNodePtr node, TableInfo& tableInfo, 
+                                 std::vector<ParseNodePtr>& condition) {
     auto tablename = static_cast<IdentifierNode*>(node->children[0].get())->id;
-    if (_catelogManager->getTable(tablename, tableInfo)) {
+    if (!_catelogManager->getTable(tablename, tableInfo)) {
         MINISQL_LOG_ERROR("Table [%s] does not exist!", tablename.c_str());
         return false;
     }
     if (node->children.size() == 1) {
         return true;
     }
-    auto condition = node->children[1];
+    condition = node->children[1]->children;
 
     return validateCondition(condition, tableInfo);
 }
 
-bool SQLAnalyzer::validateCondition(ParseNodePtr condition, const TableInfo& tableInfo) {
-    // now they're all 'AND'
-    condition = condition->children[0];
-
-    for (auto it = condition->children.begin(); it != condition->children.end(); it++) {
+bool SQLAnalyzer::validateCondition(const std::vector<ParseNodePtr>& condition, 
+                                    const TableInfo& tableInfo) {
+    for (auto it = condition.begin(); it != condition.end(); it++) {
         auto field = static_cast<IdentifierNode*>((*it)->children[0].get());
         auto fieldIt = tableInfo.recordInfo.fieldInfoMap.find(field->id);
         if (fieldIt == tableInfo.recordInfo.fieldInfoMap.end()) {
@@ -207,30 +205,23 @@ bool SQLAnalyzer::validateCondition(ParseNodePtr condition, const TableInfo& tab
             return false;
         }
         if (fieldIt->second.type.baseType == FloatType &&
-            (*it)->children[0]->token == FLOAT) {
+            (*it)->children[1]->token == FLOAT) {
             continue;
-        } else {
-            MINISQL_LOG_ERROR("Invalid Field [%s] for table [%s]!",
-                    fieldIt->first.c_str(), tableInfo.name.c_str());
-            return false;
         }
-        if (fieldIt->second.type.baseType == IntType &&
-            (*it)->children[0]->token == INTEGER) {
+        else if (fieldIt->second.type.baseType == IntType &&
+            (*it)->children[1]->token == INTEGER) {
             continue;
-        } else {
-            MINISQL_LOG_ERROR("Invalid Field [%s] for table [%s]!",
-                    fieldIt->first.c_str(), tableInfo.name.c_str());
-            return false;
-        }
-        if (fieldIt->second.type.baseType == CharType &&
-            (*it)->children[0]->token == CHAR) {
-            auto inode = static_cast<IntNode*>((*it)->children[1]->children[0].get());
-            if (inode->i != fieldIt->second.type.length) {
-                MINISQL_LOG_ERROR("Invalid Field [%s] for table [%s]!",
-                        fieldIt->first.c_str(), tableInfo.name.c_str());
-                return false;
+        } 
+        else if (fieldIt->second.type.baseType == CharType &&
+                 (*it)->children[1]->token == CHAR) {
+            auto cnode = static_cast<CharNode*>((*it)->children[1].get());
+            if (cnode->c_.size() == fieldIt->second.type.length) {
+                continue;
             }
         }
+        MINISQL_LOG_ERROR("Invalid Field [%s] for table [%s]!",
+                          fieldIt->first.c_str(), tableInfo.name.c_str());
+        return false;
     }
     
     return true;

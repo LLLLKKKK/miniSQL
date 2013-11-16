@@ -188,7 +188,7 @@ bool LRUCache<K, V, GetSizeCallback>::get(const K& key, V& val, bool pin) {
         return true;
     }
     else {
-        MINISQL_LOG_TRACE("key does not exists, get failed!");
+        // MINISQL_LOG_TRACE("key does not exists, get failed!");
         return false;
     }
 }

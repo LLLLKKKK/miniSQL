@@ -37,6 +37,7 @@ private:
     bool startInsert(ParseNodePtr node);
     bool startDelete(ParseNodePtr node);
 
+    bool checkCondition(const Record& record, const std::vector<ParseNodePtr>& condition);
 private:
     BufferManagerPtr _bufferManager;
     CatelogManager _catelogManager;

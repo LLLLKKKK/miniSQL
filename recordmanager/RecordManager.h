@@ -48,10 +48,7 @@ public:
 public:
     bool init(bool isNew = false);
     
-    fileposition getRecordBeginPos() const {
-        return _beginPos;
-    }
-
+    fileposition getRecordBeginPos();
     bool getRecord(const fileposition& position, Record& record);
     bool insertRecord(const Record& record);
     bool deleteRecord(const fileposition& position);
@@ -75,7 +72,7 @@ private:
         return reinterpret_cast<RecordPageHeader*>(page->data);
     }
 
-    uint16_t getRecordMeta(fileposition& pos);    
+    uint16_t getRecordMeta(fileposition& pos);
     void initRecordPageHeader(RecordPageHeader* header);
     bool insertRecord(const Record& record, fileposition& pos);
 
@@ -86,7 +83,6 @@ private:
     std::string _recordFile;
     RecordInfo _recordInfo;
     fileposition _nowPos;
-    fileposition _beginPos;
     
 private:
     DECLARE_LOGGER(RecordManager);
