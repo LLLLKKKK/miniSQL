@@ -10,7 +10,7 @@ namespace miniSQL {
 #define MAX_PAGEID 0xFFFFFFFF
 #define INVALID_PAGEID 0x00000000
 #define PAGE_SIZE (8 * 1024)
-#define BUFFER_SIZE (10 * 1024 * 1024)
+#define BUFFER_SIZE (20 * 1024 * 1024)
 #define MAX_FILE_SIZE (1024 * 1024 * 1024)
 
 #define FILE_HEADER_STRING "MiniSQL DbFile"

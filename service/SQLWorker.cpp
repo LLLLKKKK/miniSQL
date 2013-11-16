@@ -1,4 +1,5 @@
 
+#include <cstdio>
 #include <fstream>
 #include <memory>
 #include "SQLWorker.h"
@@ -34,7 +35,8 @@ std::list<ParseNodePtr> SQLWorker::parse(std::istream* stream) {
 
 bool SQLWorker::init() {
     _bufferManager = std::make_shared<BufferManager>();
-    
+    _bufferManager->init();
+
     if (!_catelogManager.readTables()) {
         MINISQL_LOG_ERROR("CatelogManager init failed!");
         return false;
@@ -67,7 +69,7 @@ bool SQLWorker::startCreate(ParseNodePtr statement) {
             return false;
         }
         _catelogManager.addTable(tableInfo);
-        _bufferManager->loadDbFile(tableInfo.name, true);
+        _bufferManager->loadDbFile(tableInfo.name + ".table", true);
     }
     // index
     else {
@@ -78,7 +80,7 @@ bool SQLWorker::startCreate(ParseNodePtr statement) {
         }
         _catelogManager.addIndex(indexInfo.tablename, indexInfo.indexname, 
                 indexInfo.columnname);
-        _bufferManager->loadDbFile(indexInfo.indexname);
+        _bufferManager->loadDbFile(indexInfo.indexname + ".index");
         // index building...
     }
     return true;
@@ -92,6 +94,13 @@ bool SQLWorker::startDrop(ParseNodePtr statement) {
             MINISQL_LOG_ERROR("Validate drop table statement failed!");
             return false;
         }
+        std::remove(tablename.c_str());
+        std::remove((tablename + ".table").c_str());
+        TableInfo tableInfo;
+        _catelogManager.getTable(tablename, tableInfo);
+        for (auto index : tableInfo.indexToColumnMap) {
+            std::remove((index.first + ".index").c_str());
+        }
         return _catelogManager.deleteTable(tablename);
     }
     // index
@@ -101,6 +110,7 @@ bool SQLWorker::startDrop(ParseNodePtr statement) {
             MINISQL_LOG_ERROR("Validate drop index statement failed!");
             return false;
         }
+        std::remove((indexname + ".index").c_str());
         return _catelogManager.deleteIndex(indexname);
     }
     return true;
@@ -150,6 +160,10 @@ bool SQLWorker::start(std::istream* stream) {
             std::string filename =
                 (static_cast<IdentifierNode*>(statement->children.front().get()))->id;
             std::ifstream file(filename, std::ifstream::in);
+            if (!file.good()) {
+                MINISQL_LOG_ERROR("Bad sql file!");
+                return true;
+            }
             return start(&file);
         }
         case CREATE:

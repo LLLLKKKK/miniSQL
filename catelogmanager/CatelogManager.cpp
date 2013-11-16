@@ -84,13 +84,13 @@ bool CatelogManager::deleteTable(const std::string& tablename) {
 
 bool CatelogManager::getTable(const std::string& tablename, TableInfo& tableInfo) {
     if (_tableInfoFileSet.find(tablename) == _tableInfoFileSet.end()) {
-        MINISQL_LOG_ERROR("Table [%s] does not exists!",
-                          tablename.c_str());
+        // MINISQL_LOG_TRACE("Table [%s] does not exists!",
+        //                   tablename.c_str());
         return false;
     }
     if (_tableMap.find(tablename) == _tableMap.end()) {
-        MINISQL_LOG_ERROR("Table [%s] does not exists!",
-                          tablename.c_str());
+        // MINISQL_LOG_TRACE("Table [%s] does not exists!",
+        //                   tablename.c_str());
         return false;
     }
     tableInfo = _tableMap[tablename];
@@ -148,6 +148,7 @@ bool CatelogManager::readTableInfoFile(const std::string& infoFile, TableInfo& t
         return false;
     }
     ifs >> tableInfo.name;
+    ifs >> tableInfo.primary;
     int indexNum;
     ifs >> indexNum;
     while (indexNum--) {
@@ -182,7 +183,7 @@ bool CatelogManager::writeTableInfoFile(const std::string& infoFile,
                           infoFile.c_str());
         return false;
     }
-    ofs << tableInfo.name << '\n';
+    ofs << tableInfo.name <<' ' << tableInfo.primary << '\n';
     ofs << tableInfo.indexToColumnMap.size() << '\n';
     for (auto it = tableInfo.indexToColumnMap.begin(); 
          it != tableInfo.indexToColumnMap.end(); it++) {

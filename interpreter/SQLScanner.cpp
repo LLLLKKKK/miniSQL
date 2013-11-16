@@ -211,7 +211,7 @@ bool SQLScanner::isTerminator() const {
 }
 
 bool SQLScanner::isAlphaNow() const {
-    return isalpha(nowChar);
+    return isalpha(nowChar) || nowChar == '.';
 }
 
 bool SQLScanner::isQuoteNow() const {

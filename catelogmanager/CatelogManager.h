@@ -13,6 +13,7 @@ namespace miniSQL {
 
 struct TableInfo {
     std::string name;
+    std::string primary;
     RecordInfo recordInfo;
     std::map<std::string, std::string> indexToColumnMap;
 };

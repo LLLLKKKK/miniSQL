@@ -19,7 +19,7 @@ bool SQLAnalyzer::validateCreateTable(ParseNodePtr node, TableInfo& tableInfo) {
     }
     tableInfo.name = tablename;
     uint32_t offsetNow = 0;
-    for (size_t i = 1; i < node->children.size(); i++) {
+    for (size_t i = 2; i < node->children.size() - 1; i++) {
         auto identifierNode = static_cast<IdentifierNode*>(node->children[i].get());
         auto typeNode = identifierNode->children.front();
         FieldInfo fieldInfo;
@@ -28,8 +28,8 @@ bool SQLAnalyzer::validateCreateTable(ParseNodePtr node, TableInfo& tableInfo) {
         case INTEGER:
             fieldInfo.type.baseType = IntType;
             fieldInfo.type.length = 1;
-                offsetNow += fieldInfo.type.length * sizeof(int);
-                break;
+            offsetNow += fieldInfo.type.length * sizeof(int);
+            break;
         case FLOAT:
             fieldInfo.type.baseType = FloatType;
             fieldInfo.type.length = 1;
@@ -47,6 +47,8 @@ bool SQLAnalyzer::validateCreateTable(ParseNodePtr node, TableInfo& tableInfo) {
         tableInfo.recordInfo.fieldInfoMap[identifierNode->id] = fieldInfo;
         tableInfo.recordInfo.fields.push_back(identifierNode->id);
     }
+    tableInfo.primary = static_cast<IdentifierNode*>(
+            node->children[node->children.size() - 1].get())->id;
     tableInfo.recordInfo.size = offsetNow;
 
     return true;
@@ -82,10 +84,10 @@ bool SQLAnalyzer::validateCreateIndex(ParseNodePtr node, IndexInfo& indexInfo) {
 bool SQLAnalyzer::validateDropTable(ParseNodePtr node, std::string& tablename) {
     auto typeToken = node->children.front()->token;
     assert(typeToken == TABLE);
-    auto tname = static_cast<IdentifierNode*>(node->children[1].get())->id;
+    tablename = static_cast<IdentifierNode*>(node->children[1].get())->id;
     TableInfo tableInfo;
-    if (!_catelogManager->getTable(tname, tableInfo)) {
-        MINISQL_LOG_ERROR("Table [%s] does not exist!", tname.c_str());
+    if (!_catelogManager->getTable(tablename, tableInfo)) {
+        MINISQL_LOG_ERROR("Table [%s] does not exist!", tablename.c_str());
         return false;
     }
     return true;
@@ -96,9 +98,9 @@ bool SQLAnalyzer::validateDropIndex(ParseNodePtr node, std::string& indexname) {
     auto typeToken = node->children.front()->token;
     assert(typeToken == INDEX);
     
-    auto iname = static_cast<IdentifierNode*>(node->children[1].get())->id;
-    if (!_catelogManager->getIndex(iname)) {
-        MINISQL_LOG_ERROR("Index [%s] does not exist!", iname.c_str());
+    indexname = static_cast<IdentifierNode*>(node->children[1].get())->id;
+    if (!_catelogManager->getIndex(indexname)) {
+        MINISQL_LOG_ERROR("Index [%s] does not exist!", indexname.c_str());
         return false;
     }
 

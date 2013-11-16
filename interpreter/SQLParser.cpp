@@ -79,8 +79,11 @@ ParseNodePtr SQLParser::parseStatement() {
     }
     else if (nowReading == EXECFILE) {
         readToken();
+        auto identifier = parseIdentifier();
         expect(TERMINATOR);
-        return ParseNodePtr(new ParseNode(EXECFILE));
+        auto exec = ParseNodePtr(new ParseNode(EXECFILE));
+        exec->children.push_back(identifier);
+        return exec;
     }
     else {
         assert(false);
@@ -121,11 +124,10 @@ ParseNodePtr SQLParser::parseCreate() {
         expect(LEFT_BRACE);
         while (startsIdentifier(nowReading)) {
             ParseNodePtr id = parseIdentifier();
-            //LOG_TRACE(logger, "parse id %s.", ((IdentifierNode*)id.get())->id_.c_str());
             ParseNodePtr type = parseType();
             if (nowReading == UNIQUE) {
                 readToken();
-                id->children.emplace_back(new ParseNode(UNIQUE));
+                type->children.emplace_back(new ParseNode(UNIQUE));
             }
             expect(SLICE);
             id->children.push_back(type);
